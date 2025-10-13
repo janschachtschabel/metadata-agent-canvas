@@ -96,8 +96,8 @@
 </head>
 <body>
   <div class="container">
-    <h1>📝 Metadata Canvas</h1>
-    <p class="subtitle">Installation in 3 einfachen Schritten</p>
+    <h1>📝 Metadata Canvas - Bookmarklet</h1>
+    <p class="subtitle">🌐 Live auf Netlify - Installation in 3 einfachen Schritten</p>
 
     <!-- Step 1 -->
     <div class="step">
@@ -116,7 +116,7 @@
       <h3><span class="step-number">3</span>JavaScript-Code kopieren</h3>
       <p style="margin-top: 12px;">Kopieren Sie diesen Code in das <strong>"URL"</strong>-Feld des Lesezeichens:</p>
       
-      <div class="code-box" id="bookmarkletCode">javascript:(function(){if(window.MCanvas){MCanvas.open();return}const d=document,c=d.createElement('div');c.id='mc-c';c.style.cssText='position:fixed;top:0;right:-520px;width:520px;height:100vh;background:white;box-shadow:-4px 0 16px rgba(0,0,0,.2);z-index:999999;transition:right .3s;display:flex;flex-direction:column';const h=d.createElement('div');h.style.cssText='padding:16px;background:#1976d2;color:white;display:flex;justify-content:space-between;align-items:center';h.innerHTML='<span style="font-weight:600">📝 Canvas</span><button id="mc-x" style="background:none;border:none;color:white;font-size:24px;cursor:pointer">×</button>';const f=d.createElement('iframe');f.src='https://localhost:4200';f.style.cssText='flex:1;border:none';c.appendChild(h);c.appendChild(f);d.body.appendChild(c);const b=d.createElement('button');b.innerHTML='📝';b.style.cssText='position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#1976d2;color:white;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:999998';b.onclick=()=>c.style.right=c.style.right==='0px'?'-520px':'0';d.body.appendChild(b);h.querySelector('#mc-x').onclick=()=>c.style.right='-520px';window.MCanvas={open:()=>{const m=(n)=>{const e=d.querySelector(`meta[name="${n}"]`)||d.querySelector(`meta[property="${n}"]`)||d.querySelector(`meta[property="og:${n}"]`);return e?e.getAttribute('content'):''};let t='';if(d.title)t+=`Titel: ${d.title}\n\n`;const de=m('description');if(de)t+=`Beschreibung: ${de}\n\n`;const a=m('author');if(a)t+=`Autor: ${a}\n\n`;t+=`URL: ${location.href}\n\n`;const x=(d.body.innerText||d.body.textContent).replace(/\s+/g,' ').trim().substring(0,3000);t+=`Inhalt:\n${x}`;setTimeout(()=>f.contentWindow.postMessage({type:'SET_TEXT',text:t},'https://localhost:4200'),1000);c.style.right='0'}};MCanvas.open()})();</div>
+      <div class="code-box" id="bookmarkletCode">javascript:(function(){if(window.MCanvas){MCanvas.open();return}const d=document,c=d.createElement('div');c.id='mc-c';c.style.cssText='position:fixed;top:0;right:-520px;width:520px;height:100vh;background:white;box-shadow:-4px 0 16px rgba(0,0,0,.2);z-index:999999;transition:right .3s;display:flex;flex-direction:column';const h=d.createElement('div');h.style.cssText='padding:16px;background:#1976d2;color:white;display:flex;justify-content:space-between;align-items:center';h.innerHTML='<span style="font-weight:600">📝 Canvas</span><button id="mc-x" style="background:none;border:none;color:white;font-size:24px;cursor:pointer">×</button>';const f=d.createElement('iframe');f.src='https://mdextractionwebcomponent.netlify.app';f.style.cssText='flex:1;border:none';c.appendChild(h);c.appendChild(f);d.body.appendChild(c);const b=d.createElement('button');b.innerHTML='📝';b.style.cssText='position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#1976d2;color:white;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:999998';b.onclick=()=>c.style.right=c.style.right==='0px'?'-520px':'0';d.body.appendChild(b);h.querySelector('#mc-x').onclick=()=>c.style.right='-520px';window.MCanvas={open:()=>{const m=(n)=>{const e=d.querySelector(`meta[name="${n}"]`)||d.querySelector(`meta[property="${n}"]`)||d.querySelector(`meta[property="og:${n}"]`);return e?e.getAttribute('content'):''};let t='';if(d.title)t+=`Titel: ${d.title}\n\n`;const de=m('description');if(de)t+=`Beschreibung: ${de}\n\n`;const a=m('author');if(a)t+=`Autor: ${a}\n\n`;t+=`URL: ${location.href}\n\n`;const x=(d.body.innerText||d.body.textContent).replace(/\s+/g,' ').trim().substring(0,3000);t+=`Inhalt:\n${x}`;setTimeout(()=>f.contentWindow.postMessage({type:'SET_TEXT',text:t},'https://mdextractionwebcomponent.netlify.app'),1000);c.style.right='0'}};MCanvas.open()})();</div>
       
       <button class="btn" onclick="copyCode()">📋 Code kopieren</button>
       <span id="copyStatus" style="margin-left: 12px; color: #4caf50; display: none;">✅ Kopiert!</span>
@@ -135,11 +135,10 @@
       <button class="btn btn-success" onclick="testCanvas()">▶️ Canvas hier testen</button>
     </div>
 
-    <div class="warning">
-      <strong>⚠️ Wichtig:</strong> Starten Sie Angular mit SSL:<br>
-      <code style="background: #2d2d2d; color: #4caf50; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 8px;">npm run start:ssl</code><br>
-      <small style="margin-top: 8px; display: inline-block;">Dadurch läuft die App auf <strong>https://localhost:4200</strong> und funktioniert auf HTTPS-Seiten!<br>
-      (Beim ersten Start müssen Sie die Sicherheitswarnung im Browser akzeptieren)</small>
+    <div class="success warning">
+      <strong>✅ Live auf Netlify!</strong><br>
+      Das Canvas läuft auf: <strong>https://mdextractionwebcomponent.netlify.app</strong><br>
+      <small style="margin-top: 8px; display: inline-block;">Funktioniert auf allen HTTPS-Seiten! 🚀</small>
     </div>
 
     <h2>📖 Verwendung</h2>

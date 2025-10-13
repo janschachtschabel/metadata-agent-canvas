@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node replace-env.js && ng serve",
     "start:ssl": "node replace-env.js && ng serve --ssl",
-    "test:integration": "node serve-test.js",
     "build": "node replace-env.js && ng build --configuration production",
     "build:prod": "node replace-env.js && ng build --configuration production",
     "build:dev": "ng build",

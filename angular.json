@@ -24,6 +24,11 @@
                 "glob": "test-sidebar.html",
                 "input": "src",
                 "output": "."
+              },
+              {
+                "glob": "bookmarklet-simple.html",
+                "input": "src",
+                "output": "."
               }
             ],
             "styles": ["src/styles.scss"],
