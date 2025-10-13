@@ -3,15 +3,15 @@ export const environment = {
   
   // OpenAI Configuration
   openai: {
-    apiKey: '', // Will be injected by replace-env.js from environment variables
+    apiKey: '', // Injected from environment variable
     baseUrl: '', // Optional: Custom OpenAI-compatible endpoint
-    model: 'gpt-4.1-mini', // Will be injected by replace-env.js
+    model: 'gpt-4.1-mini', // Injected from environment variable
     temperature: 0.3,
     
     // GPT-5 specific settings (only used if model starts with 'gpt-5')
     gpt5: {
-      reasoningEffort: 'medium', // Will be injected by replace-env.js
-      verbosity: 'low' // Will be injected by replace-env.js
+      reasoningEffort: 'medium', // Injected from environment variable
+      verbosity: 'low' // Injected from environment variable
     }
   },
   

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metadata Canvas - Einfache Installation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 48px;
+    }
+    h1 { color: #333; margin-bottom: 16px; font-size: 36px; }
+    h2 { color: #1976d2; margin: 32px 0 16px; font-size: 24px; }
+    .subtitle { color: #666; font-size: 18px; margin-bottom: 32px; }
+    .step {
+      background: #f5f5f5;
+      padding: 24px;
+      border-radius: 8px;
+      margin: 24px 0;
+      border-left: 4px solid #1976d2;
+    }
+    .step-number {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      background: #1976d2;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 32px;
+      font-weight: bold;
+      margin-right: 12px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 16px 32px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(25,118,210,0.3);
+      text-decoration: none;
+      margin: 8px 0;
+    }
+    .btn:hover {
+      background: #1565c0;
+      transform: translateY(-2px);
+    }
+    .btn-success { background: #4caf50; }
+    .btn-success:hover { background: #43a047; }
+    .code-box {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin: 16px 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .success {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+    .test-section {
+      background: #e3f2fd;
+      padding: 24px;
+      border-radius: 8px;
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 Metadata Canvas</h1>
+    <p class="subtitle">Installation in 3 einfachen Schritten</p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <h3><span class="step-number">1</span>Neues Lesezeichen erstellen</h3>
+      <p style="margin-top: 12px;">Machen Sie einen Rechtsklick auf Ihre Lesezeichen-Leiste und wählen Sie <strong>"Neues Lesezeichen hinzufügen"</strong></p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <h3><span class="step-number">2</span>Namen eingeben</h3>
+      <p style="margin-top: 12px;">Name: <strong>Metadata Canvas</strong></p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <h3><span class="step-number">3</span>JavaScript-Code kopieren</h3>
+      <p style="margin-top: 12px;">Kopieren Sie diesen Code in das <strong>"URL"</strong>-Feld des Lesezeichens:</p>
+      
+      <div class="code-box" id="bookmarkletCode">javascript:(function(){if(window.MCanvas){MCanvas.open();return}const d=document,c=d.createElement('div');c.id='mc-c';c.style.cssText='position:fixed;top:0;right:-520px;width:520px;height:100vh;background:white;box-shadow:-4px 0 16px rgba(0,0,0,.2);z-index:999999;transition:right .3s;display:flex;flex-direction:column';const h=d.createElement('div');h.style.cssText='padding:16px;background:#1976d2;color:white;display:flex;justify-content:space-between;align-items:center';h.innerHTML='<span style="font-weight:600">📝 Canvas</span><button id="mc-x" style="background:none;border:none;color:white;font-size:24px;cursor:pointer">×</button>';const f=d.createElement('iframe');f.src='https://localhost:4200';f.style.cssText='flex:1;border:none';c.appendChild(h);c.appendChild(f);d.body.appendChild(c);const b=d.createElement('button');b.innerHTML='📝';b.style.cssText='position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#1976d2;color:white;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:999998';b.onclick=()=>c.style.right=c.style.right==='0px'?'-520px':'0';d.body.appendChild(b);h.querySelector('#mc-x').onclick=()=>c.style.right='-520px';window.MCanvas={open:()=>{const m=(n)=>{const e=d.querySelector(`meta[name="${n}"]`)||d.querySelector(`meta[property="${n}"]`)||d.querySelector(`meta[property="og:${n}"]`);return e?e.getAttribute('content'):''};let t='';if(d.title)t+=`Titel: ${d.title}\n\n`;const de=m('description');if(de)t+=`Beschreibung: ${de}\n\n`;const a=m('author');if(a)t+=`Autor: ${a}\n\n`;t+=`URL: ${location.href}\n\n`;const x=(d.body.innerText||d.body.textContent).replace(/\s+/g,' ').trim().substring(0,3000);t+=`Inhalt:\n${x}`;setTimeout(()=>f.contentWindow.postMessage({type:'SET_TEXT',text:t},'https://localhost:4200'),1000);c.style.right='0'}};MCanvas.open()})();</div>
+      
+      <button class="btn" onclick="copyCode()">📋 Code kopieren</button>
+      <span id="copyStatus" style="margin-left: 12px; color: #4caf50; display: none;">✅ Kopiert!</span>
+    </div>
+
+    <div class="success warning">
+      <strong>✅ Fertig!</strong><br>
+      Jetzt können Sie das Lesezeichen auf jeder Webseite verwenden!
+    </div>
+
+    <!-- Test Section -->
+    <h2>🧪 Testen</h2>
+    <div class="test-section">
+      <p><strong>Direkter Test (ohne Lesezeichen):</strong></p>
+      <p style="margin: 12px 0;">Klicken Sie diesen Button um das Canvas direkt auf dieser Seite zu testen:</p>
+      <button class="btn btn-success" onclick="testCanvas()">▶️ Canvas hier testen</button>
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ Wichtig:</strong> Starten Sie Angular mit SSL:<br>
+      <code style="background: #2d2d2d; color: #4caf50; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-top: 8px;">npm run start:ssl</code><br>
+      <small style="margin-top: 8px; display: inline-block;">Dadurch läuft die App auf <strong>https://localhost:4200</strong> und funktioniert auf HTTPS-Seiten!<br>
+      (Beim ersten Start müssen Sie die Sicherheitswarnung im Browser akzeptieren)</small>
+    </div>
+
+    <h2>📖 Verwendung</h2>
+    <div class="step">
+      <ol style="margin-left: 20px; line-height: 2;">
+        <li>Öffnen Sie eine beliebige Webseite (z.B. Wikipedia)</li>
+        <li>Klicken Sie auf das Lesezeichen "Metadata Canvas"</li>
+        <li>Das Canvas öffnet sich rechts</li>
+        <li>Metadaten werden automatisch extrahiert</li>
+        <li>Button rechts unten zum Öffnen/Schließen</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    function copyCode() {
+      const code = document.getElementById('bookmarkletCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const status = document.getElementById('copyStatus');
+        status.style.display = 'inline';
+        setTimeout(() => status.style.display = 'none', 3000);
+      });
+    }
+
+    function testCanvas() {
+      eval(document.getElementById('bookmarkletCode').textContent.replace('javascript:', ''));
+    }
+  </script>
+</body>
+</html>

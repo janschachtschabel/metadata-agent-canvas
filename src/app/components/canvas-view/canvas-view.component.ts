@@ -42,6 +42,41 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         // Manually trigger change detection with OnPush strategy
         this.cdr.markForCheck();
       });
+    
+    // Listen for postMessage from parent window (test integration)
+    this.setupPostMessageListener();
+  }
+  
+  /**
+   * Setup postMessage listener for external integration
+   */
+  private setupPostMessageListener(): void {
+    window.addEventListener('message', (event) => {
+      // Security: Only accept messages from localhost (test integration)
+      if (!event.origin.includes('localhost')) {
+        return;
+      }
+      
+      if (event.data.type === 'SET_TEXT' && event.data.text) {
+        console.log('📨 Received text via postMessage:', event.data.text.substring(0, 100) + '...');
+        
+        // Set text in textarea
+        this.userText = event.data.text;
+        
+        // Trigger change detection
+        this.cdr.detectChanges();
+        
+        // Send confirmation back
+        if (event.source) {
+          (event.source as Window).postMessage({
+            type: 'TEXT_RECEIVED',
+            success: true
+          }, event.origin);
+        }
+        
+        console.log('✅ Text successfully set in canvas');
+      }
+    });
   }
 
   ngOnDestroy(): void {

@@ -27,7 +27,7 @@
               }
             ],
             "styles": ["src/styles.scss"],
-            "scripts": [],
+            "scripts": ["src/assets/canvas-integration.js"],
             "extractLicenses": false,
             "allowedCommonJsDependencies": [
               "camelcase",
