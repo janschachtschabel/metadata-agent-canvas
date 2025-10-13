@@ -12,7 +12,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/app",
+            "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["zone.js", "src/polyfills.ts"],
@@ -22,8 +22,8 @@
               "src/schemata",
               {
                 "glob": "test-sidebar.html",
-                "input": "./",
-                "output": "../"
+                "input": "src",
+                "output": "."
               }
             ],
             "styles": ["src/styles.scss"],

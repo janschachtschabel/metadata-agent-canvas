@@ -128,26 +128,36 @@
 
       .autocomplete-dropdown {
         position: absolute;
-        top: 100%;
+        top: calc(100% + 2px);
         left: 0;
         right: 0;
-        max-height: 200px;
+        max-height: 320px;  // Increased for ~10 items (32px each)
         overflow-y: auto;
         background: white;
-        border: 1px solid #ddd;
-        border-top: none;
-        border-radius: 0 0 4px 4px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 10;
+        border: 1px solid #2196f3;
+        border-radius: 4px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        z-index: 1000;  // Higher z-index to overlap everything
+        margin-top: 2px;
 
         .autocomplete-option {
-          padding: 8px 12px;
+          padding: 10px 12px;
           cursor: pointer;
           font-size: 14px;
-          transition: background 0.2s;
+          transition: background 0.15s;
+          border-bottom: 1px solid #f0f0f0;
+
+          &:last-child {
+            border-bottom: none;
+          }
 
           &:hover {
-            background: #f5f5f5;
+            background: #e3f2fd;
+            color: #1976d2;
+          }
+
+          &:active {
+            background: #bbdefb;
           }
         }
       }

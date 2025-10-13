@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
@@ -8,7 +8,8 @@ import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './canvas-field.component.html',
-  styleUrls: ['./canvas-field.component.scss']
+  styleUrls: ['./canvas-field.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() field!: CanvasFieldState;
@@ -128,7 +129,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
     // Auto-resize on input
     this.autoResizeTextarea();
 
-    // Filter autocomplete options
+    // Filter autocomplete options (limit to 10)
     if (this.field.vocabulary) {
       const searchTerm = this.inputValue.toLowerCase();
       this.filteredOptions = this.field.vocabulary.concepts
@@ -136,6 +137,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
           c.label.toLowerCase().includes(searchTerm) ||
           c.altLabels?.some(alt => alt.toLowerCase().includes(searchTerm))
         )
+        .slice(0, 10)  // Limit to first 10 matches
         .map(c => c.label);
       
       this.showAutocomplete = this.filteredOptions.length > 0 && this.inputValue.length > 0;

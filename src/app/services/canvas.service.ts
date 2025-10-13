@@ -162,6 +162,7 @@ export class CanvasService {
         
         return {
           fieldId: field.id,
+          uri: field.system?.uri || field.id,
           group: groupId,
           groupLabel: String(groupLabel),
           groupOrder: groupOrder,
@@ -320,6 +321,7 @@ export class CanvasService {
         
         return {
           fieldId: field.id,
+          uri: field.system?.uri || field.id,
           group: groupId,
           groupLabel: String(groupLabel),
           groupOrder: groupOrder,
@@ -700,11 +702,89 @@ export class CanvasService {
   }
 
   /**
-   * Get metadata JSON
+   * Get metadata JSON with URI and label information
+   * For vocabulary-based fields: returns array of {label, uri} pairs
+   * For free-text fields: returns just the value
    */
   getMetadataJson(): string {
     const state = this.getCurrentState();
-    return JSON.stringify(state.metadata, null, 2);
+    const allFields = [...state.coreFields, ...state.specialFields];
+    
+    // Create a map of fieldId to field object
+    const fieldMap = new Map<string, any>();
+    allFields.forEach(field => {
+      fieldMap.set(field.fieldId, field);
+    });
+    
+    // Build enriched output
+    const enrichedOutput: Record<string, any> = {};
+    
+    Object.keys(state.metadata).forEach(fieldId => {
+      const value = state.metadata[fieldId];
+      const field = fieldMap.get(fieldId);
+      
+      if (!field) {
+        // Fallback: field not found (shouldn't happen)
+        enrichedOutput[fieldId] = value;
+        return;
+      }
+      
+      // Check if field has a vocabulary (controlled values)
+      if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
+        // Field with vocabulary: Map values to {label, uri} pairs
+        if (Array.isArray(value)) {
+          // Multiple values: map each to {label, uri}
+          enrichedOutput[fieldId] = value
+            .filter(v => v !== null && v !== undefined && v !== '')
+            .map(v => this.mapValueToLabelUri(v, field.vocabulary.concepts));
+        } else if (value !== null && value !== undefined && value !== '') {
+          // Single value: map to {label, uri}
+          enrichedOutput[fieldId] = this.mapValueToLabelUri(value, field.vocabulary.concepts);
+        } else {
+          // Empty value
+          enrichedOutput[fieldId] = field.multiple ? [] : null;
+        }
+      } else {
+        // Field without vocabulary: just use the value as-is
+        enrichedOutput[fieldId] = value;
+      }
+    });
+    
+    return JSON.stringify(enrichedOutput, null, 2);
+  }
+  
+  /**
+   * Map a value (label or URI) to {label, uri} pair from vocabulary concepts
+   */
+  private mapValueToLabelUri(value: string, concepts: any[]): { label: string; uri: string } {
+    // Try to find concept by URI first (normalization sets URIs as values)
+    let concept = concepts.find(c => c.uri === value);
+    
+    // If not found by URI, try by label
+    if (!concept) {
+      concept = concepts.find(c => c.label === value);
+    }
+    
+    // If not found by label, try by altLabels
+    if (!concept) {
+      concept = concepts.find(c => 
+        c.altLabels && Array.isArray(c.altLabels) && c.altLabels.includes(value)
+      );
+    }
+    
+    if (concept) {
+      return {
+        label: concept.label,
+        uri: concept.uri || ''
+      };
+    }
+    
+    // Fallback: value not found in vocabulary
+    console.warn(`⚠️ Value "${value}" not found in vocabulary concepts`);
+    return {
+      label: value,
+      uri: ''
+    };
   }
 
   /**

@@ -30,6 +30,7 @@ export interface VocabularyInfo {
 
 export interface CanvasFieldState {
   fieldId: string;
+  uri: string;  // URI from schema system.uri
   label: string;
   description: string;
   group: string;

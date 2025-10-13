@@ -96,7 +96,7 @@
   <div class="canvas-content" *ngIf="state.fieldGroups.length > 0">
     
     <!-- All Field Groups (in schema order) -->
-    <div *ngFor="let group of state.fieldGroups" class="field-group">
+    <div *ngFor="let group of state.fieldGroups; trackBy: trackByGroupId" class="field-group">
       <div class="group-header">
         <h3>📋 {{ group.label }}</h3>
         <div class="group-badges">
@@ -107,7 +107,7 @@
       </div>
       <div class="group-fields">
         <app-canvas-field
-          *ngFor="let field of group.fields"
+          *ngFor="let field of group.fields; trackBy: trackByFieldId"
           [field]="field"
           (fieldChange)="onFieldChange($event)"
         ></app-canvas-field>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -12,7 +12,8 @@ import { CanvasFieldComponent } from '../canvas-field/canvas-field.component';
   standalone: true,
   imports: [CommonModule, FormsModule, CanvasFieldComponent],
   templateUrl: './canvas-view.component.html',
-  styleUrls: ['./canvas-view.component.scss']
+  styleUrls: ['./canvas-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CanvasViewComponent implements OnInit, OnDestroy {
   state: CanvasState;
@@ -22,10 +23,12 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
   
   private destroy$ = new Subject<void>();
+  private savedScrollPosition = 0;
 
   constructor(
     private canvasService: CanvasService,
-    private schemaLoader: SchemaLoaderService
+    private schemaLoader: SchemaLoaderService,
+    private cdr: ChangeDetectorRef
   ) {
     this.state = this.canvasService.getCurrentState();
   }
@@ -36,6 +39,8 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
         this.state = state;
+        // Manually trigger change detection with OnPush strategy
+        this.cdr.markForCheck();
       });
   }
 
@@ -60,7 +65,34 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Handle field change
    */
   onFieldChange(event: { fieldId: string; value: any }): void {
+    // Save current scroll position
+    this.saveScrollPosition();
+    
+    // Update field value
     this.canvasService.updateFieldValue(event.fieldId, event.value);
+    
+    // Restore scroll position after change detection
+    setTimeout(() => this.restoreScrollPosition(), 0);
+  }
+  
+  /**
+   * Save current scroll position
+   */
+  private saveScrollPosition(): void {
+    const canvasContent = document.querySelector('.canvas-content');
+    if (canvasContent) {
+      this.savedScrollPosition = canvasContent.scrollTop;
+    }
+  }
+  
+  /**
+   * Restore saved scroll position
+   */
+  private restoreScrollPosition(): void {
+    const canvasContent = document.querySelector('.canvas-content');
+    if (canvasContent && this.savedScrollPosition > 0) {
+      canvasContent.scrollTop = this.savedScrollPosition;
+    }
   }
 
   /**
@@ -318,5 +350,19 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       event.stopPropagation();
     }
     this.showContentTypeDropdown = false;
+  }
+  
+  /**
+   * TrackBy function for field groups (performance optimization)
+   */
+  trackByGroupId(index: number, group: FieldGroup): string {
+    return `${group.schemaName}::${group.id}`;
+  }
+  
+  /**
+   * TrackBy function for fields (performance optimization)
+   */
+  trackByFieldId(index: number, field: any): string {
+    return field.fieldId;
   }
 }

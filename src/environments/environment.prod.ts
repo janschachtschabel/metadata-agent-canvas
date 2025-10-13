@@ -3,15 +3,15 @@ export const environment = {
   
   // OpenAI Configuration
   openai: {
-    apiKey: '', // WICHTIG: Leer lassen! Wird von Vercel zur Build-Zeit injiziert
+    apiKey: '', // Will be injected by replace-env.js from environment variables
     baseUrl: '', // Optional: Custom OpenAI-compatible endpoint
-    model: 'gpt-4.1-mini', // Standard model
+    model: 'gpt-4.1-mini', // Will be injected by replace-env.js
     temperature: 0.3,
     
     // GPT-5 specific settings (only used if model starts with 'gpt-5')
     gpt5: {
-      reasoningEffort: 'medium', // 'low' | 'medium' | 'high'
-      verbosity: 'low' // 'low' | 'medium' | 'high'
+      reasoningEffort: 'medium', // Will be injected by replace-env.js
+      verbosity: 'low' // Will be injected by replace-env.js
     }
   },
   

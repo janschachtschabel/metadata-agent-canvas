@@ -4,7 +4,7 @@
   "description": "Angular Web Component for Metadata Extraction with LangGraph.js",
   "main": "dist/index.js",
   "scripts": {
-    "start": "ng serve",
+    "start": "node replace-env.js && ng serve",
     "build": "node replace-env.js && ng build --configuration production",
     "build:prod": "node replace-env.js && ng build --configuration production",
     "build:dev": "ng build",
