@@ -52,8 +52,16 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    */
   private setupPostMessageListener(): void {
     window.addEventListener('message', (event) => {
-      // Security: Only accept messages from localhost (test integration)
-      if (!event.origin.includes('localhost')) {
+      // Log incoming message for debugging
+      console.log('📬 postMessage received from:', event.origin, 'Type:', event.data?.type);
+      
+      // Security: Accept messages from any HTTPS origin or localhost (for bookmarklet usage)
+      const isSecureOrigin = event.origin.startsWith('https://') || 
+                             event.origin.includes('localhost') ||
+                             event.origin.includes('127.0.0.1');
+      
+      if (!isSecureOrigin) {
+        console.warn('⚠️ Message from untrusted origin rejected:', event.origin);
         return;
       }
       
@@ -74,7 +82,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
           }, event.origin);
         }
         
-        console.log('✅ Text successfully set in canvas');
+        console.log('✅ Text successfully set in canvas textarea');
       }
     });
   }
