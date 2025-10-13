@@ -10,30 +10,8 @@
       "destination": "/test-sidebar.html"
     },
     {
-      "source": "/app/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/test-sidebar.html",
-      "dest": "/test-sidebar.html"
-    },
-    {
-      "src": "/schemata/(.*)",
-      "dest": "/schemata/$1"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/app/:path*",
+      "destination": "/app/index.html"
     }
   ],
   "headers": [
