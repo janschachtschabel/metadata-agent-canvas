@@ -46,8 +46,7 @@ Thumbs.db
 .env.local
 
 # ⚠️ WICHTIG: Keine API Keys committen!
-# Development environment mit lokalen Keys (nicht committen)
-src/environments/environment.ts
-
-# Production environment wird commitet, aber OHNE Keys!
+# environment.ts und environment.prod.ts werden beide commitet (OHNE Keys!)
+# Für lokale Entwicklung: Kopieren Sie environment.ts lokal und fügen Sie Ihren Key hinzu
+# Diese lokale Kopie wird von Git ignoriert wenn Sie Keys enthält
 # Keys werden zur Build-Zeit von Vercel injiziert

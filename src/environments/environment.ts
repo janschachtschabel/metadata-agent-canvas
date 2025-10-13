@@ -1,11 +1,11 @@
 export const environment = {
-  production: true,
+  production: false,
   
   // OpenAI Configuration
   openai: {
-    apiKey: '', // WICHTIG: Leer lassen! Wird von Vercel zur Build-Zeit injiziert
-    baseUrl: '', // Optional: Custom OpenAI-compatible endpoint
-    model: 'gpt-4.1-mini', // Standard model
+    apiKey: '', // Add your API key here for local development (will be prompted if empty)
+    baseUrl: '', // Optional: Custom OpenAI-compatible endpoint (leave empty for default)
+    model: 'gpt-4o-mini', // Standard model
     temperature: 0.3,
     
     // GPT-5 specific settings (only used if model starts with 'gpt-5')

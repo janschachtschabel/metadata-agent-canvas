@@ -1,10 +1,13 @@
+// This is a template file for environment.ts
+// Copy this file to environment.ts and add your local API key for development
+
 export const environment = {
-  production: true,
+  production: false,
   
   // OpenAI Configuration
   openai: {
-    apiKey: '', // WICHTIG: Leer lassen! Wird von Vercel zur Build-Zeit injiziert
-    baseUrl: '', // Optional: Custom OpenAI-compatible endpoint
+    apiKey: '', // Add your local API key here for development
+    baseUrl: '', // Optional: Custom OpenAI-compatible endpoint (leave empty for default)
     model: 'gpt-4.1-mini', // Standard model
     temperature: 0.3,
     
@@ -14,7 +17,7 @@ export const environment = {
       verbosity: 'low' // 'low' | 'medium' | 'high'
     }
   },
-  
+
   // Canvas Worker Pool Configuration
   canvas: {
     maxWorkers: 10, // Number of parallel field extractions (5-20 recommended)
