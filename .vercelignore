@@ -1,0 +1,12 @@
+node_modules
+.angular
+.git
+*.md
+!README.md
+src
+*.ts
+!*.d.ts
+tsconfig.json
+angular.json
+package-lock.json
+.env*

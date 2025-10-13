@@ -1,0 +1,17 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple owl placeholder -->
+  <circle cx="100" cy="100" r="80" fill="#104187"/>
+  
+  <!-- Eyes -->
+  <circle cx="75" cy="90" r="20" fill="white"/>
+  <circle cx="125" cy="90" r="20" fill="white"/>
+  <circle cx="75" cy="90" r="10" fill="#1B1B1A"/>
+  <circle cx="125" cy="90" r="10" fill="#1B1B1A"/>
+  
+  <!-- Beak -->
+  <path d="M100 100 L90 120 L110 120 Z" fill="#FFBF00"/>
+  
+  <!-- Ears/Tufts -->
+  <path d="M60 50 L70 30 L80 50 Z" fill="#36639E"/>
+  <path d="M120 50 L130 30 L140 50 Z" fill="#36639E"/>
+</svg>

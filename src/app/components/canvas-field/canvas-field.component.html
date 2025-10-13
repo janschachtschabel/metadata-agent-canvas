@@ -1,0 +1,61 @@
+<div class="canvas-field" [ngClass]="getStatusClass()">
+  <!-- Status Icon -->
+  <span class="status-icon" [title]="field.status">{{ getStatusIcon() }}</span>
+  
+  <!-- Label -->
+  <label class="field-label">
+    {{ field.label }}
+    <span *ngIf="field.isRequired" class="required-marker">*</span>
+  </label>
+  
+  <!-- Input Area -->
+  <div class="field-input-container">
+    <!-- Chips for array fields with existing values -->
+    <div *ngIf="field.multiple && field.value && field.value.length > 0" class="chip-container">
+      <span *ngFor="let item of field.value" class="chip">
+        {{ item }}
+        <button class="chip-remove" (click)="removeChip(item)" type="button">×</button>
+      </span>
+    </div>
+    
+    <!-- Input field -->
+    <div class="input-wrapper">
+      <textarea
+        #textareaRef
+        class="field-input"
+        [(ngModel)]="inputValue"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        (keypress)="onKeyPress($event)"
+        [placeholder]="field.description"
+        [disabled]="field.status === FieldStatus.EXTRACTING"
+        rows="1"
+      ></textarea>
+      
+      <!-- Autocomplete dropdown -->
+      <div *ngIf="showAutocomplete" class="autocomplete-dropdown">
+        <div 
+          *ngFor="let option of filteredOptions" 
+          class="autocomplete-option"
+          (click)="selectOption(option)"
+        >
+          {{ option }}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Info Icon with Tooltip -->
+  <button
+    class="info-icon"
+    [title]="getTooltipInfo()"
+    type="button"
+  >
+    ℹ️
+  </button>
+  
+  <!-- Error Message -->
+  <div *ngIf="field.status === FieldStatus.ERROR && field.extractionError" class="error-message">
+    {{ field.extractionError }}
+  </div>
+</div>

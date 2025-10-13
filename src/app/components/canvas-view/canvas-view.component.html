@@ -1,0 +1,146 @@
+<div class="canvas-container">
+  <!-- Input Section -->
+  <div class="input-section">
+    <textarea
+      class="text-input"
+      [(ngModel)]="userText"
+      placeholder="Beschreiben Sie die Ressource, die Sie erschließen möchten..."
+      rows="4"
+      [disabled]="state.isExtracting"
+    ></textarea>
+      
+    <div class="header-actions">
+      <button 
+        class="btn-primary"
+        (click)="startExtraction()"
+        [disabled]="state.isExtracting || !userText.trim()"
+      >
+        <span *ngIf="!state.isExtracting">🚀 Extraktion starten</span>
+        <span *ngIf="state.isExtracting">⏳ Extrahiere...</span>
+      </button>
+      
+      <button 
+        class="btn-secondary"
+        (click)="reset()"
+        [disabled]="state.isExtracting"
+      >
+        🔄 Zurücksetzen
+      </button>
+    </div>
+  </div>
+
+  <!-- Compact Status Bar: Content Type + Progress -->
+  <div *ngIf="state.totalFields > 0" class="compact-status-bar">
+    <!-- Left: Content Type -->
+    <div class="content-type-section">
+      <span class="content-type-label">
+        {{ getContentTypeLabel() }}
+        <span *ngIf="state.contentTypeConfidence > 0" class="confidence">
+          ({{ (state.contentTypeConfidence * 100).toFixed(0) }}%)
+        </span>
+      </span>
+      <button 
+        class="btn-change-content-type"
+        (click)="changeContentType()"
+        [disabled]="state.isExtracting"
+        title="Inhaltsart ändern"
+      >
+        ✏️ ÄNDERN
+      </button>
+    </div>
+
+    <!-- Right: Progress Info -->
+    <div class="progress-section-compact">
+      <div class="field-stats">
+        <span class="stat-item total">
+          Felder: {{ state.filledFields }}/{{ state.totalFields }} ({{ getProgressPercentage() }}%)
+        </span>
+        <span class="stat-separator">|</span>
+        <span class="stat-item">
+          Pflicht: {{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }}
+        </span>
+        <span class="progress-emoji">{{ getProgressEmoji() }}</span>
+      </div>
+      <div class="progress-bar-compact">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="state.extractionProgress"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Content Type Dropdown -->
+    <div *ngIf="showContentTypeDropdown" class="content-type-dropdown">
+      <div class="dropdown-overlay" (click)="closeContentTypeDropdown()"></div>
+      <div class="dropdown-menu">
+        <div class="dropdown-header">
+          <span>Inhaltsart wählen</span>
+          <button class="btn-close" (click)="closeContentTypeDropdown()">&times;</button>
+        </div>
+        <div class="dropdown-options">
+          <button 
+            *ngFor="let option of contentTypeOptions"
+            class="dropdown-option"
+            [class.active]="getContentTypeLabel() === option.label"
+            (click)="selectContentType(option)"
+          >
+            <span class="option-label">{{ option.label }}</span>
+            <span *ngIf="getContentTypeLabel() === option.label" class="option-checkmark">✓</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas Content Area -->
+  <div class="canvas-content" *ngIf="state.fieldGroups.length > 0">
+    
+    <!-- All Field Groups (in schema order) -->
+    <div *ngFor="let group of state.fieldGroups" class="field-group">
+      <div class="group-header">
+        <h3>📋 {{ group.label }}</h3>
+        <div class="group-badges">
+          <span class="group-badge schema-badge">{{ group.schemaName }}</span>
+          <span class="group-badge count-badge">{{ getFilledFieldsCount(group) }} / {{ group.fields.length }}</span>
+          <span class="badge-text">Felder erkannt</span>
+        </div>
+      </div>
+      <div class="group-fields">
+        <app-canvas-field
+          *ngFor="let field of group.fields"
+          [field]="field"
+          (fieldChange)="onFieldChange($event)"
+        ></app-canvas-field>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="state.fieldGroups.length === 0" class="empty-state">
+    <div class="empty-state-content">
+      <div class="empty-icon">📝</div>
+      <h3>Bereit für die Extraktion</h3>
+      <p>Geben Sie eine Beschreibung ein und klicken Sie auf "Extraktion starten"</p>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="canvas-footer" *ngIf="state.totalFields > 0">
+    <div class="footer-info">
+      <span>
+        <strong>{{ state.filledFields }}</strong> von <strong>{{ state.totalFields }}</strong> Feldern gefüllt
+      </span>
+    </div>
+    <div class="footer-actions">
+      <button 
+        class="btn-success btn-large"
+        (click)="confirmAndExport()"
+        [disabled]="!allRequiredFieldsFilled()"
+        [title]="!allRequiredFieldsFilled() ? 'Bitte füllen Sie alle Pflichtfelder aus' : 'JSON herunterladen'"
+      >
+        <span *ngIf="allRequiredFieldsFilled()">✅ Bestätigen & JSON herunterladen</span>
+        <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ausfüllen ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+      </button>
+    </div>
+  </div>
+</div>
