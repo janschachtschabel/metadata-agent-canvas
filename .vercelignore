@@ -1,12 +1,24 @@
-node_modules
-.angular
+# Vercel ignore file
+# Only ignore files that should NOT be uploaded to Vercel
+
+# Git files (not needed)
 .git
+
+# Environment files with secrets (not needed, we use Vercel env vars)
+.env
+.env.local
+
+# Development files (not needed)
+.vscode/
+.idea/
+
+# Build output (not needed, will be built on Vercel)
+/dist
+/.angular
+
+# Documentation (not needed for build)
 *.md
 !README.md
-src
-*.ts
-!*.d.ts
-tsconfig.json
-angular.json
-package-lock.json
-.env*
+
+# Logs
+*.log
