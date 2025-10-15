@@ -21,6 +21,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   FieldStatus = FieldStatus;
   showContentTypeDropdown = false;
   contentTypeOptions: Array<{ label: string; schemaFile: string }> = [];
+  isGeocodingInProgress = false;
   
   private destroy$ = new Subject<void>();
   private savedScrollPosition = 0;
@@ -196,14 +197,36 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   /**
    * Confirm and download JSON
    */
-  confirmAndExport(): void {
+  async confirmAndExport(): Promise<void> {
     if (!this.allRequiredFieldsFilled()) {
       const status = this.getRequiredFieldsStatus();
       alert(`Bitte füllen Sie alle Pflichtfelder aus. (${status.filled}/${status.total} erfüllt)`);
       return;
     }
 
-    this.downloadJson();
+    // Show loading indicator
+    this.isGeocodingInProgress = true;
+    this.cdr.detectChanges();
+    console.log('🗺️ Enriching data with geocoding...');
+    
+    try {
+      // Enrich with geocoding data before export
+      await this.canvasService.enrichWithGeocodingBeforeExport();
+      
+      // Download JSON with enriched data
+      this.downloadJson();
+      
+    } catch (error) {
+      console.error('❌ Error during geocoding enrichment:', error);
+      // Still allow download even if geocoding fails
+      if (confirm('Geocoding-Anreicherung fehlgeschlagen. Trotzdem herunterladen?')) {
+        this.downloadJson();
+      }
+    } finally {
+      // Hide loading indicator
+      this.isGeocodingInProgress = false;
+      this.cdr.detectChanges();
+    }
   }
 
   /**

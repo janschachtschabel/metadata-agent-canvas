@@ -135,11 +135,12 @@
       <button 
         class="btn-success btn-large"
         (click)="confirmAndExport()"
-        [disabled]="!allRequiredFieldsFilled()"
+        [disabled]="!allRequiredFieldsFilled() || isGeocodingInProgress"
         [title]="!allRequiredFieldsFilled() ? 'Bitte füllen Sie alle Pflichtfelder aus' : 'JSON herunterladen'"
       >
-        <span *ngIf="allRequiredFieldsFilled()">✅ Bestätigen & JSON herunterladen</span>
-        <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ausfüllen ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+        <span *ngIf="isGeocodingInProgress">🗺️ Geodaten werden ermittelt...</span>
+        <span *ngIf="!isGeocodingInProgress && allRequiredFieldsFilled()">✅ Bestätigen & JSON herunterladen</span>
+        <span *ngIf="!isGeocodingInProgress && !allRequiredFieldsFilled()">⚠️ Pflichtfelder ausfüllen ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
       </button>
     </div>
   </div>

@@ -6,6 +6,7 @@ import { FieldExtractionWorkerPoolService } from './field-extraction-worker-pool
 import { FieldNormalizerService } from './field-normalizer.service';
 import { OpenAIProxyService } from './openai-proxy.service';
 import { ShapeExpanderService } from './shape-expander.service';
+import { GeocodingService } from './geocoding.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -20,7 +21,8 @@ export class CanvasService {
     private workerPool: FieldExtractionWorkerPoolService,
     private fieldNormalizer: FieldNormalizerService,
     private openaiProxy: OpenAIProxyService,
-    private shapeExpander: ShapeExpanderService
+    private shapeExpander: ShapeExpanderService,
+    private geocodingService: GeocodingService
   ) {
     // Configure worker pool
     this.workerPool.setMaxWorkers(environment.canvas.maxWorkers);
@@ -578,7 +580,10 @@ export class CanvasService {
     
     console.log('📦 Created field groups (sorted by schema + order):');
     result.forEach((g, index) => {
-      console.log(`  ${index + 1}. ${g.label} (${g.schemaName}, order=${g.order}) - ${g.fields.length} fields: ${g.fields.map(f => f.fieldId).join(', ')}`);
+      console.log(`  ${index + 1}. ${g.label} (${g.schemaName}, order=${g.order}) - ${g.fields.length} fields:`);
+      g.fields.forEach(f => {
+        console.log(`     - ${f.fieldId} (status: ${f.status}, hasShape: ${!!f.shape})`);
+      });
     });
     
     return result;
@@ -767,7 +772,19 @@ export class CanvasService {
       
       // Check if field has sub-fields (complex object with shape)
       if (field.isParent && field.subFields && field.subFields.length > 0) {
-        // Reconstruct structured object from sub-fields
+        // Check if metadata already has geocoded/enriched data (from enrichWithGeocodingBeforeExport)
+        // If so, use that instead of reconstructing from sub-fields
+        if (value && Array.isArray(value) && value.some((v: any) => v.geo)) {
+          console.log(`🗺️ Using geocoded data from metadata for ${fieldId} (has geo coordinates)`);
+          enrichedOutput[fieldId] = value;
+          return;
+        } else if (value && typeof value === 'object' && value.geo) {
+          console.log(`🗺️ Using geocoded data from metadata for ${fieldId} (has geo coordinates)`);
+          enrichedOutput[fieldId] = value;
+          return;
+        }
+        
+        // Otherwise reconstruct from sub-fields
         console.log(`🔧 Reconstructing object for ${fieldId} from ${field.subFields.length} sub-fields`);
         const reconstructedValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
         enrichedOutput[fieldId] = reconstructedValue;
@@ -830,6 +847,91 @@ export class CanvasService {
       label: value,
       uri: ''
     };
+  }
+
+  /**
+   * Enrich metadata with geocoding data before export
+   * Called right before download to add geo-coordinates to location fields
+   */
+  async enrichWithGeocodingBeforeExport(): Promise<void> {
+    const state = this.getCurrentState();
+    const metadata = { ...state.metadata };
+    const allFields = [...state.coreFields, ...state.specialFields];
+
+    console.log('🗺️ Starting geocoding enrichment...');
+
+    // List of fields that may contain location data
+    const locationFields = [
+      'schema:location',      // Events, Education Offers
+      'schema:address',       // Organizations
+      'schema:legalAddress'   // Organizations
+    ];
+
+    let geocodedCount = 0;
+
+    for (const fieldId of locationFields) {
+      let value = metadata[fieldId];
+
+      // Check if field has sub-fields that need to be reconstructed first
+      const field = allFields.find(f => f.fieldId === fieldId);
+      if (field && field.isParent && field.subFields && field.subFields.length > 0) {
+        console.log(`🔧 Reconstructing ${fieldId} from sub-fields before geocoding...`);
+        value = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
+        metadata[fieldId] = value; // Update metadata with reconstructed value
+      }
+
+      if (!value) {
+        continue; // Field not present or empty
+      }
+
+      console.log(`🔍 Checking ${fieldId}:`, value);
+
+      try {
+        // Handle array of locations (e.g., multiple event venues)
+        if (Array.isArray(value)) {
+          const geocodedLocations = await this.geocodingService.geocodeLocations(value);
+          metadata[fieldId] = geocodedLocations;
+          
+          const newGeoCount = geocodedLocations.filter(l => l.geo).length;
+          const oldGeoCount = value.filter((l: any) => l.geo).length;
+          geocodedCount += (newGeoCount - oldGeoCount);
+          
+        } else if (typeof value === 'object' && value !== null) {
+          // Handle single location/address object
+          if (value['@type'] === 'Place' && value.address) {
+            // It's a Place with address
+            const geocodedPlace = await this.geocodingService.geocodePlace(value);
+            metadata[fieldId] = geocodedPlace;
+            if (geocodedPlace.geo && !value.geo) {
+              geocodedCount++;
+            }
+          } else if (value.streetAddress || value.postalCode) {
+            // It's a PostalAddress - geocode it
+            const geoResult = await this.geocodingService.geocodeAddress(value);
+            if (geoResult) {
+              // Add geo data as separate field or enrich address
+              metadata[`${fieldId}_geo`] = {
+                '@type': 'GeoCoordinates',
+                latitude: geoResult.latitude,
+                longitude: geoResult.longitude
+              };
+              geocodedCount++;
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Geocoding failed for ${fieldId}:`, error);
+        // Continue with other fields
+      }
+    }
+
+    if (geocodedCount > 0) {
+      console.log(`✅ Geocoding enrichment complete: ${geocodedCount} locations geocoded`);
+      // Update metadata in state
+      this.updateState({ metadata });
+    } else {
+      console.log('ℹ️ No new locations geocoded (addresses may already have coordinates or no addresses found)');
+    }
   }
 
   /**

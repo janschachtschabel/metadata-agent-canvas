@@ -1,7 +1,7 @@
 {
   "name": "metadata-agent-webcomponent",
   "version": "1.0.0",
-  "description": "Angular Web Component for Metadata Extraction with LangGraph.js",
+  "description": "Angular Web Component for AI-powered Metadata Extraction",
   "main": "dist/index.js",
   "scripts": {
     "proxy": "node local-proxy.js",
@@ -23,9 +23,6 @@
     "@angular/material": "^19.2.18",
     "@angular/platform-browser": "^19.2.14",
     "@angular/platform-browser-dynamic": "^19.2.14",
-    "@langchain/core": "^0.3.26",
-    "@langchain/openai": "^0.3.17",
-    "openai": "^4.77.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.3.1",
     "zone.js": "~0.15.1",
