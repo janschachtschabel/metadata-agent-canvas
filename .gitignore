@@ -50,3 +50,4 @@ Thumbs.db
 # Für lokale Entwicklung: Kopieren Sie environment.ts lokal und fügen Sie Ihren Key hinzu
 # Diese lokale Kopie wird von Git ignoriert wenn Sie Keys enthält
 # Keys werden zur Build-Zeit von Vercel injiziert
+src/environments/environment*.ts
