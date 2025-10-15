@@ -5,10 +5,11 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 ## 🎯 Features
 
 - ⚡ **Schnell**: Parallele Feld-Extraktion (6-10s statt 40-50s)
-- 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar
+- 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar mit Baum-Hierarchie für verschachtelte Felder
 - 📊 **Live-Updates**: Echtzeit-Streaming während der Extraktion
 - ✏️ **Inline-Editing**: Direkte Feldbearbeitung mit Autocomplete
 - 🔄 **Automatische Normalisierung**: Datumsformate, URLs, Vokabulare
+- 🗺️ **Geocoding-Integration**: Automatische Anreicherung mit Geo-Koordinaten beim Export (Photon API)
 - 🎓 **Content-Type-Erkennung**: Automatische Schema-Auswahl (Event, Kurs, etc.)
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
 - 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
@@ -433,6 +434,7 @@ Nach dem Deployment:
 **Feld-Features:**
 - **Autocomplete**: Bei Vokabular-Feldern (z.B. Bildungsstufe)
 - **Chips**: Array-Felder zeigen Werte als entfernbare Chips
+- **Baum-Hierarchie**: Verschachtelte Felder (z.B. Location → Address → Street) mit visuellen Tree-Linien (├─ und └─)
 - **Confidence-Badge**: KI-Sicherheit (0-100%) bei extrahierten Werten
 - **Auto-Resize**: Textareas passen sich automatisch an
 
@@ -440,6 +442,195 @@ Nach dem Deployment:
 - Fortschrittsbalken mit Prozent
 - Felder-Zähler: `Gefüllt/Gesamt`
 - Pflichtfelder-Status separat angezeigt
+
+---
+
+## 🗺️ Geocoding-Integration
+
+Die App reichert Adressdaten **automatisch mit Geo-Koordinaten** an, bevor der JSON-Export erfolgt.
+
+### Funktionsweise
+
+**Wann wird geocodiert?**
+- Beim Klick auf **"Bestätigen & JSON herunterladen"**
+- **Vor** dem tatsächlichen Download
+- **Nur** wenn Adress-Daten vorhanden sind
+
+**Welche Felder werden geocodiert?**
+- `schema:location` (Events, Bildungsangebote)
+- `schema:address` (Organisationen)
+- `schema:legalAddress` (Organisationen)
+
+**API-Service:**
+- Verwendet **Photon API** von Komoot (OpenStreetMap-basiert)
+- **Kostenlos** und ohne API-Key
+- **Rate Limit:** 1 Request/Sekunde (automatisch eingehalten)
+- **Proxy-Support:** Netlify Function umgeht Browser-Blocker
+
+### Beispiel: Vorher/Nachher
+
+**Input (vom User oder KI extrahiert):**
+```json
+{
+  "schema:location": [{
+    "@type": "Place",
+    "name": "Gasteig HP8",
+    "address": {
+      "streetAddress": "Hans-Preißinger-Straße 8",
+      "postalCode": "81379",
+      "addressLocality": "München"
+    }
+  }]
+}
+```
+
+**Output (nach Geocoding beim Export):**
+```json
+{
+  "schema:location": [{
+    "@type": "Place",
+    "name": "Gasteig HP8",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Hans-Preißinger-Straße 8",
+      "postalCode": "81379",
+      "addressLocality": "München",
+      "addressRegion": "Bayern",          // ← Angereichert
+      "addressCountry": "Deutschland",    // ← Angereichert
+      "countryCode": "DE"                 // ← Angereichert
+    },
+    "geo": {                              // ← NEU!
+      "@type": "GeoCoordinates",
+      "latitude": 48.1173,
+      "longitude": 11.5942
+    }
+  }]
+}
+```
+
+### Features
+
+**✅ Vorteile:**
+- **Automatisch**: Keine manuelle Eingabe von Koordinaten
+- **Genau**: OpenStreetMap-Datenbank
+- **Anreicherung**: Ergänzt Bundesland, Land, Postleitzahl
+- **Fehler-tolerant**: Export funktioniert auch wenn Geocoding fehlschlägt
+- **Intelligent**: Überspringt bereits geocodete Locations
+- **Schnell**: < 1 Sekunde pro Adresse
+
+**🛡️ Technische Details:**
+- **Rate Limiting:** 1 Request/Sekunde (Photon API-Limit)
+- **Sequenzielle Verarbeitung:** Mehrere Adressen werden nacheinander verarbeitet
+- **Netlify-Proxy:** Production-Build nutzt Server-side Proxy
+- **Lokal:** Direkter API-Zugriff ohne Proxy
+- **Caching:** 10 Minuten Cache auf Netlify (gleiche Adresse = kein erneuter Request)
+
+### Konfiguration
+
+Die Geocoding-Funktion ist **standardmäßig aktiviert** und benötigt keine Konfiguration.
+
+**Services:**
+- `geocoding.service.ts` - Photon API Integration
+- `canvas.service.ts` - Anreicherungs-Logik vor Export
+- `netlify/functions/photon.js` - Server-side Proxy für Production
+
+**Logging:**
+```
+🗺️ Enriching data with geocoding...
+🔧 Reconstructing schema:location from sub-fields before geocoding...
+🗺️ Geocoding address: "Hans-Preißinger-Straße 8, 81379, München"
+✅ Geocoded: 48.1173, 11.5942
+✅ Geocoding enrichment complete: 1 locations geocoded
+```
+
+### Fehlerbehandlung
+
+**Wenn Geocoding fehlschlägt:**
+1. Browser-Konsole zeigt Fehler-Log
+2. User erhält Bestätigungs-Dialog:
+   ```
+   Geocoding-Anreicherung fehlgeschlagen. Trotzdem herunterladen?
+   ```
+3. Download funktioniert auch ohne Geo-Daten
+
+**Mögliche Fehler:**
+- API nicht erreichbar
+- Adresse nicht gefunden (zu ungenau)
+- Rate Limit überschritten (bei vielen Adressen)
+- Netzwerk-Probleme
+
+---
+
+## 🌳 Verschachtelte Felder & Baum-Hierarchie
+
+Die App unterstützt **komplexe verschachtelte Felder** mit visueller Baum-Darstellung.
+
+### Beispiel: Location-Feld
+
+**Schema-Definition:**
+```json
+{
+  "id": "schema:location",
+  "datatype": "array",
+  "items": {
+    "type": "object",
+    "shape": {
+      "oneOf": [
+        {
+          "@type": "Place",
+          "name": "string",
+          "address": {
+            "streetAddress": "string",
+            "postalCode": "string",
+            "addressLocality": "string"
+          },
+          "geo": {
+            "latitude": "number",
+            "longitude": "number"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### UI-Darstellung
+
+**Baum-Hierarchie mit visuellen Linien:**
+```
+✓ Ort                      [Steubenstraße 34]      ℹ️
+│
+├─ ✓ Name                 [Hausparty]
+├─ ✓ Street Address       [Steubenstraße 34]
+├─ ⚪ Postal Code          [99423]
+├─ ✓ Address Locality     [Weimar]
+├─ ⚪ Address Region       []
+└─ ✓ Address Country      [DE]
+```
+
+**Vorteile:**
+- **Permanent sichtbar**: Keine aufklappbaren Details mehr
+- **Visuell klar**: Tree-Lines zeigen Hierarchie
+- **Inline-Editing**: Alle Sub-Fields direkt bearbeitbar
+- **Alignment**: Input-Felder vertikal aligned
+- **Responsive**: Funktioniert auf allen Bildschirmgrößen
+
+### Sub-Field-Rendering
+
+**Component:** `canvas-field.component.html`
+- Parent-Feld zeigt Preview (z.B. erste gefüllte Sub-Field)
+- Sub-Fields haben eigene Zeile mit Tree-Connector
+- Status-Icons und Labels im grauen Bereich (links)
+- Input-Felder im weißen Bereich (rechts)
+
+**Shape-Expander Service:**
+- Lädt `shape` aus Schema-Definition
+- Erstellt automatisch Sub-Fields
+- Rekonstruiert Objekte für JSON-Export
+- Unterstützt verschachtelte Strukturen (mehrere Ebenen)
+
+---
 
 ## 📋 Schema-Datenstruktur
 
@@ -729,6 +920,17 @@ Input: "zwei Dutzend"       → LLM → 24
 - Lädt JSON-Schemata aus `src/schemata/`
 - Parst Feld-Definitionen
 
+**ShapeExpanderService** (`shape-expander.service.ts`)
+- Erweitert Felder mit `shape` zu Sub-Fields
+- Erstellt hierarchische Feld-Strukturen
+- Rekonstruiert verschachtelte Objekte für Export
+
+**GeocodingService** (`geocoding.service.ts`)
+- Photon API Integration
+- Address → Geo-Koordinaten Konvertierung
+- Rate Limiting (1 Request/Sekunde)
+- Anreicherung mit Zusatzdaten (Bundesland, Land)
+
 ### Component-Layer
 
 **CanvasViewComponent** (`canvas-view/`)
@@ -857,10 +1059,15 @@ Die Schemata befinden sich in `src/schemata/`:
 
 - **Angular 19** - Framework
 - **RxJS** - Reactive Programming
-- **@langchain/openai** - OpenAI-Integration
 - **TypeScript** - Typsicherheit
+- **OpenAI API** - KI-gestützte Metadaten-Extraktion (GPT-4.1-mini)
+- **Photon API** - Geocoding (Komoot/OpenStreetMap)
+- **Netlify Functions** - Server-side Proxies für APIs
+- **Material Design** - UI-Komponenten
 
----
+**Externe APIs:**
+- OpenAI API via Netlify Function (`netlify/functions/openai-proxy.js`)
+- Photon Geocoding API via Netlify Function (`netlify/functions/photon.js`)
 
 ---
 

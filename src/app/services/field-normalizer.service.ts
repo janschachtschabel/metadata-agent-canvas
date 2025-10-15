@@ -39,10 +39,26 @@ export class FieldNormalizerService {
     }
 
     // Try local normalization first (instant, no API call)
-    const localNormalized = this.tryLocalNormalization(field, userInput);
-    if (localNormalized !== userInput) {
-      console.log(`⚡ Local normalization succeeded: "${userInput}" → "${localNormalized}"`);
+    const localResult = this.tryLocalNormalization(field, userInput);
+    
+    // Check if local normalization was successful
+    // Success means: value changed OR vocabulary validation passed
+    const localSuccess = localResult.success;
+    const localNormalized = localResult.value;
+    
+    if (localSuccess) {
+      if (localNormalized !== userInput) {
+        console.log(`⚡ Local normalization succeeded: "${userInput}" → "${localNormalized}"`);
+      } else {
+        console.log(`⚡ Local validation succeeded: "${userInput}"`);
+      }
       return of(localNormalized);
+    }
+
+    // Skip API call for simple cases where LLM is not needed
+    if (!this.needsLlmNormalization(field, userInput)) {
+      console.log(`⏩ Skipping LLM normalization (not needed for simple case)`);
+      return of(userInput);
     }
 
     // Build normalization prompt
@@ -70,10 +86,10 @@ export class FieldNormalizerService {
         });
         
         // Fallback: Try local normalization again
-        const fallbackNormalized = this.tryLocalNormalization(field, userInput);
-        if (fallbackNormalized !== userInput) {
-          console.log(`🔄 Fallback to local normalization: "${userInput}" → "${fallbackNormalized}"`);
-          return of(fallbackNormalized);
+        const fallbackResult = this.tryLocalNormalization(field, userInput);
+        if (fallbackResult.success && fallbackResult.value !== userInput) {
+          console.log(`🔄 Fallback to local normalization: "${userInput}" → "${fallbackResult.value}"`);
+          return of(fallbackResult.value);
         }
         
         // Return original value on error
@@ -84,24 +100,74 @@ export class FieldNormalizerService {
   }
 
   /**
-   * Try local normalization without LLM (instant)
+   * Check if LLM normalization is needed (to avoid unnecessary API calls)
    */
-  private tryLocalNormalization(field: CanvasFieldState, userInput: any): any {
+  private needsLlmNormalization(field: CanvasFieldState, userInput: any): boolean {
+    // LLM is only needed for:
+    // 1. Complex number words that local parser can't handle
+    // 2. Complex date formats that local parser can't handle
+    // 3. Vocabulary fields that need semantic matching (beyond fuzzy)
+    
+    // For simple strings without vocabulary: No LLM needed
+    const hasVocabulary = field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0;
+    
+    if (field.datatype === 'string' && !hasVocabulary) {
+      return false;
+    }
+    
+    // For arrays of simple strings: No LLM needed
+    if (field.datatype === 'array' && !hasVocabulary) {
+      return false;
+    }
+    
+    // For already normalized values: No LLM needed
+    if (field.datatype === 'boolean' && typeof userInput === 'boolean') {
+      return false;
+    }
+    if ((field.datatype === 'number' || field.datatype === 'integer') && typeof userInput === 'number') {
+      return false;
+    }
+    // Date fields: Accept both YYYY-MM-DD and ISO 8601 datetime formats
+    if (field.datatype === 'date' && typeof userInput === 'string') {
+      if (/^\d{4}-\d{2}-\d{2}($|T)/.test(userInput)) {
+        return false; // Already in ISO format (date or datetime)
+      }
+    }
+    if (field.datatype === 'datetime' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(userInput)) {
+      return false; // Already in ISO 8601 datetime format
+    }
+    
+    // For everything else: Try LLM (complex cases)
+    return true;
+  }
+
+  /**
+   * Try local normalization without LLM (instant)
+   * Returns {success: boolean, value: any}
+   * success=true means normalization/validation was successful (no LLM needed)
+   */
+  private tryLocalNormalization(field: CanvasFieldState, userInput: any): {success: boolean, value: any} {
     // 1. Boolean fields: ja/nein → true/false
     if (field.datatype === 'boolean') {
       const boolMatch = this.tryParseBoolean(userInput);
       if (boolMatch !== null && boolMatch !== userInput) {
         console.log(`  ✅ Boolean conversion: "${userInput}" → ${boolMatch}`);
-        return boolMatch;
+        return {success: true, value: boolMatch};
       }
     }
 
-    // 2. Vocabulary fields: Fuzzy matching
-    if (field.vocabulary && field.vocabulary.concepts.length > 0) {
+    // 2. Vocabulary fields: Exact and fuzzy matching
+    if (field.vocabulary && field.vocabulary.concepts && field.vocabulary.concepts.length > 0) {
       const vocabMatch = this.validateVocabulary(userInput, field);
-      if (vocabMatch !== userInput) {
-        console.log(`  📋 Vocabulary match: "${userInput}" → "${vocabMatch}"`);
-        return vocabMatch;
+      // If validation returned a value (not null), it means a match was found
+      // Even if it's the same value, it's been validated against vocabulary
+      if (vocabMatch !== null) {
+        if (vocabMatch !== userInput) {
+          console.log(`  📋 Vocabulary match: "${userInput}" → "${vocabMatch}"`);
+        } else {
+          console.log(`  ✅ Vocabulary exact match: "${userInput}"`);
+        }
+        return {success: true, value: vocabMatch};
       }
     }
 
@@ -110,7 +176,7 @@ export class FieldNormalizerService {
       const numberMatch = this.tryParseNumber(userInput);
       if (numberMatch !== null && numberMatch !== userInput) {
         console.log(`  🔢 Number conversion: "${userInput}" → ${numberMatch}`);
-        return numberMatch;
+        return {success: true, value: numberMatch};
       }
     }
 
@@ -119,7 +185,7 @@ export class FieldNormalizerService {
       const dateMatch = this.tryParseDate(userInput);
       if (dateMatch !== null && dateMatch !== userInput) {
         console.log(`  📅 Date conversion: "${userInput}" → "${dateMatch}"`);
-        return dateMatch;
+        return {success: true, value: dateMatch};
       }
     }
 
@@ -128,12 +194,12 @@ export class FieldNormalizerService {
       const urlMatch = this.tryParseUrl(userInput);
       if (urlMatch !== null && urlMatch !== userInput) {
         console.log(`  🔗 URL conversion: "${userInput}" → "${urlMatch}"`);
-        return urlMatch;
+        return {success: true, value: urlMatch};
       }
     }
 
     // No local normalization possible
-    return userInput;
+    return {success: false, value: userInput};
   }
 
   /**

@@ -287,6 +287,44 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Get content type icon
+   */
+  getContentTypeIcon(): string {
+    if (!this.state.selectedContentType && !this.state.detectedContentType) {
+      return '';
+    }
+
+    const schemaFile = this.state.selectedContentType || this.state.detectedContentType;
+    
+    // Try to get from SchemaLoader directly (more reliable)
+    const concepts = this.schemaLoader.getContentTypeConcepts();
+    const concept = concepts.find(c => c.schema_file === schemaFile);
+    
+    if (concept?.icon) {
+      return concept.icon;
+    }
+    
+    // Fallback: Try from field vocabulary
+    const contentTypeField = this.state.coreFields.find(f => f.fieldId === 'ccm:oeh_flex_lrt');
+    if (contentTypeField?.vocabulary) {
+      const vocabConcept = contentTypeField.vocabulary.concepts.find(c => c.schema_file === schemaFile);
+      return vocabConcept?.icon || '';
+    }
+    
+    return '';
+  }
+
+  /**
+   * Get content type tooltip with confidence and reason
+   */
+  getContentTypeTooltip(): string {
+    const confidence = Math.round(this.state.contentTypeConfidence * 100);
+    const reason = this.state.contentTypeReason || 'Automatisch erkannt';
+    
+    return `Confidence: ${confidence}%\n${reason}`;
+  }
+
+  /**
    * Get filled fields count for a group
    */
   getFilledFieldsCount(group: FieldGroup): number {
