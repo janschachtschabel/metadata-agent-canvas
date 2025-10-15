@@ -140,6 +140,22 @@ export class FieldExtractionWorkerPoolService {
       prompt += `Hinweis: Mehrere Werte möglich (Array)\n`;
     }
 
+    // Add structured shape information for complex objects
+    if (field.shape) {
+      prompt += `\nERWARTETE STRUKTUR:\n`;
+      prompt += `${JSON.stringify(field.shape, null, 2)}\n`;
+      prompt += `\nWICHTIG: Folge exakt dieser Struktur!\n`;
+    }
+
+    // Add examples if available
+    if (field.examples && field.examples.length > 0) {
+      prompt += `\nBEISPIELE:\n`;
+      field.examples.forEach((example, i) => {
+        prompt += `Beispiel ${i + 1}:\n${JSON.stringify(example, null, 2)}\n`;
+      });
+      prompt += `\nOrientiere dich an diesen Beispielen!\n`;
+    }
+
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
       prompt += `\nErlaubte Werte:\n`;
       field.vocabulary.concepts.forEach(concept => {
@@ -155,7 +171,11 @@ export class FieldExtractionWorkerPoolService {
     prompt += `Verwende null wenn der Wert nicht extrahierbar ist.\n`;
     
     if (field.multiple || field.datatype === 'array') {
-      prompt += `Für mehrere Werte verwende ein Array: {"${field.fieldId}": ["Wert1", "Wert2"]}\n`;
+      if (field.shape) {
+        prompt += `Für mehrere Werte verwende ein Array von Objekten: {"${field.fieldId}": [{...}, {...}]}\n`;
+      } else {
+        prompt += `Für mehrere Werte verwende ein Array: {"${field.fieldId}": ["Wert1", "Wert2"]}\n`;
+      }
     }
     
     if (field.vocabulary && field.vocabulary.concepts.length > 0) {
@@ -185,15 +205,18 @@ export class FieldExtractionWorkerPoolService {
           return null;
         }
         
-        // Handle nested objects (e.g., price: { amount: 120, currency: "EUR" })
+        // Handle nested objects - but ONLY flatten if field doesn't have a shape (structured type)
         if (typeof value === 'object' && !Array.isArray(value)) {
-          // If it's an object, flatten it to comma-separated string or extract specific field
-          if ('amount' in value && 'currency' in value) {
-            // Price object
+          // If field has a shape, keep the object structure
+          if (field.shape) {
+            console.log(`🏗️ ${field.fieldId}: Keeping structured object (has shape)`);
+            // Keep as-is
+          } else if ('amount' in value && 'currency' in value) {
+            // Price object - flatten for simple fields
             value = `${value.amount} ${value.currency}`;
             console.log(`💰 ${field.fieldId}: Flattened price object to:`, value);
           } else {
-            // General object - convert to string representation
+            // General object - convert to string representation for simple fields
             const stringValue = Object.entries(value)
               .map(([k, v]) => `${k}: ${v}`)
               .join(', ');
@@ -210,19 +233,32 @@ export class FieldExtractionWorkerPoolService {
         
         // Handle arrays with nested objects
         if (Array.isArray(value)) {
-          value = value.map(item => {
-            if (typeof item === 'object' && item !== null) {
-              // Flatten nested object
-              if ('amount' in item && 'currency' in item) {
-                return `${item.amount} ${item.currency}`;
+          // If field has a shape, keep objects as-is (structured data)
+          if (field.shape) {
+            console.log(`🏗️ ${field.fieldId}: Keeping structured array of objects (has shape)`);
+            // Keep objects as-is
+          } else {
+            // For simple fields, flatten objects to strings
+            value = value.map(item => {
+              if (typeof item === 'object' && item !== null) {
+                // Flatten nested object
+                if ('amount' in item && 'currency' in item) {
+                  return `${item.amount} ${item.currency}`;
+                }
+                return Object.entries(item)
+                  .map(([k, v]) => {
+                    // Recursively handle nested objects
+                    if (typeof v === 'object' && v !== null) {
+                      return `${k}: ${JSON.stringify(v)}`;
+                    }
+                    return String(v);
+                  })
+                  .join(', ');
               }
-              return Object.entries(item)
-                .map(([k, v]) => String(v))
-                .join(', ');
-            }
-            return item;
-          });
-          console.log(`📋 ${field.fieldId}: Flattened array objects:`, value);
+              return item;
+            });
+            console.log(`📋 ${field.fieldId}: Flattened array objects:`, value);
+          }
         }
         
         // Ensure arrays for multiple fields

@@ -208,3 +208,86 @@
     opacity: 0.6;
   }
 }
+
+// Structured field preview (for parent fields)
+.structured-field-preview {
+  flex: 1;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #616161;
+  font-size: 14px;
+  font-style: italic;
+
+  .preview-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Sub-fields styling
+.sub-fields-container {
+  width: 100%;
+  margin-top: 12px;
+  padding-left: 24px;
+  border-left: 2px solid #e0e0e0;
+
+  .sub-field-header {
+    margin-bottom: 8px;
+
+    .toggle-sub-fields {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #616161;
+
+      &:hover {
+        background: #eeeeee;
+        border-color: #bdbdbd;
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+
+  .sub-fields-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .sub-field {
+      // Nested fields have smaller styling
+      app-canvas-field {
+        ::ng-deep .canvas-field {
+          padding: 8px;
+          margin-bottom: 6px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+          font-size: 14px;
+
+          .field-label {
+            font-size: 13px;
+            color: #757575;
+          }
+
+          .status-icon {
+            font-size: 16px;
+          }
+
+          .field-input {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}

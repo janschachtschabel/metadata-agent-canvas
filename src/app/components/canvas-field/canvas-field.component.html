@@ -10,16 +10,21 @@
   
   <!-- Input Area -->
   <div class="field-input-container">
-    <!-- Chips for array fields with existing values -->
-    <div *ngIf="field.multiple && field.value && field.value.length > 0" class="chip-container">
+    <!-- For parent fields with sub-fields: Show preview instead of chips -->
+    <div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="structured-field-preview">
+      <span class="preview-text">{{ getStructuredPreview() }}</span>
+    </div>
+    
+    <!-- Chips for array fields with existing values (but NOT for parent fields) -->
+    <div *ngIf="!field.isParent && field.multiple && field.value && field.value.length > 0" class="chip-container">
       <span *ngFor="let item of field.value" class="chip">
         {{ item }}
         <button class="chip-remove" (click)="removeChip(item)" type="button">×</button>
       </span>
     </div>
     
-    <!-- Input field -->
-    <div class="input-wrapper">
+    <!-- Input field (hidden for parent fields) -->
+    <div *ngIf="!field.isParent" class="input-wrapper">
       <textarea
         #textareaRef
         class="field-input"
@@ -57,5 +62,24 @@
   <!-- Error Message -->
   <div *ngIf="field.status === FieldStatus.ERROR && field.extractionError" class="error-message">
     {{ field.extractionError }}
+  </div>
+  
+  <!-- Sub-fields for complex objects -->
+  <div *ngIf="field.isParent && field.subFields && field.subFields.length > 0" class="sub-fields-container">
+    <div class="sub-field-header">
+      <button class="toggle-sub-fields" (click)="toggleSubFields()" type="button">
+        {{ showSubFields ? '▼' : '▶' }} Details ({{ field.subFields.length }} Felder)
+      </button>
+    </div>
+    
+    <div *ngIf="showSubFields" class="sub-fields-list">
+      <div *ngFor="let subField of field.subFields" class="sub-field">
+        <!-- Recursive canvas-field for sub-fields -->
+        <app-canvas-field 
+          [field]="subField" 
+          (fieldChange)="onSubFieldChange($event)"
+        ></app-canvas-field>
+      </div>
+    </div>
   </div>
 </div>

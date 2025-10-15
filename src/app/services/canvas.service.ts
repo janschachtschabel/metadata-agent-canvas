@@ -5,6 +5,7 @@ import { SchemaLoaderService } from './schema-loader.service';
 import { FieldExtractionWorkerPoolService } from './field-extraction-worker-pool.service';
 import { FieldNormalizerService } from './field-normalizer.service';
 import { OpenAIProxyService } from './openai-proxy.service';
+import { ShapeExpanderService } from './shape-expander.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -18,7 +19,8 @@ export class CanvasService {
     private schemaLoader: SchemaLoaderService,
     private workerPool: FieldExtractionWorkerPoolService,
     private fieldNormalizer: FieldNormalizerService,
-    private openaiProxy: OpenAIProxyService
+    private openaiProxy: OpenAIProxyService,
+    private shapeExpander: ShapeExpanderService
   ) {
     // Configure worker pool
     this.workerPool.setMaxWorkers(environment.canvas.maxWorkers);
@@ -153,7 +155,9 @@ export class CanvasService {
               : 'closed',
             concepts: field.system.vocabulary.concepts || []
           } : undefined,
-          validation: field.system?.validation
+          validation: field.system?.validation,
+          shape: field.system?.items?.shape,  // Extract complex object structure
+          examples: field.prompt?.examples  // Extract examples from prompt section
         };
       });
 
@@ -326,7 +330,9 @@ export class CanvasService {
               : 'closed',
             concepts: field.system.vocabulary.concepts || []
           } : undefined,
-          validation: field.system?.validation
+          validation: field.system?.validation,
+          shape: field.system?.items?.shape,  // Extract complex object structure
+          examples: field.prompt?.examples  // Extract examples from prompt section
         };
       });
 
@@ -394,6 +400,38 @@ export class CanvasService {
         
         if (isFilled) {
           this.updateMetadata(result.fieldId, result.value);
+          
+          // Create sub-fields for fields with shape (complex objects)
+          if (task.field.shape) {
+            console.log(`🏗️ Creating sub-fields for ${result.fieldId} (has shape)`);
+            const subFields = this.shapeExpander.expandFieldWithShape(task.field, result.value);
+            
+            if (subFields.length > 0) {
+              // Mark parent as having sub-fields
+              const state = this.getCurrentState();
+              const parentField = [...state.coreFields, ...state.specialFields]
+                .find(f => f.fieldId === result.fieldId);
+              
+              if (parentField) {
+                parentField.isParent = true;
+                parentField.subFields = subFields;
+              }
+              
+              // Add sub-fields to the appropriate list
+              const isCore = state.coreFields.some(f => f.fieldId === result.fieldId);
+              if (isCore) {
+                this.updateState({
+                  coreFields: [...state.coreFields]
+                });
+              } else {
+                this.updateState({
+                  specialFields: [...state.specialFields]
+                });
+              }
+              
+              console.log(`✅ Created ${subFields.length} sub-fields for ${result.fieldId}`);
+            }
+          }
         }
       }
     } catch (error) {
@@ -577,12 +615,25 @@ export class CanvasService {
       return;
     }
 
-    console.log(`🔄 Normalizing field ${fieldId}:`, {
+    console.log(`👤 User updated field ${fieldId}:`, {
       value,
       datatype: field.datatype,
       hasVocabulary: !!field.vocabulary,
-      vocabularyType: field.vocabulary?.type
+      vocabularyType: field.vocabulary?.type,
+      hasShape: !!field.shape
     });
+
+    // Skip normalization for structured fields (fields with shape definition)
+    // These should keep their object structure intact
+    if (field.shape || field.datatype === 'object') {
+      console.log(`🏗️ Skipping normalization for structured field ${fieldId} (has shape or is object type)`);
+      const newStatus = (value === null || (Array.isArray(value) && value.length === 0))
+        ? FieldStatus.EMPTY 
+        : FieldStatus.FILLED;
+      this.updateFieldStatus(fieldId, newStatus, value, 1.0);
+      this.updateMetadata(fieldId, value);
+      return;
+    }
 
     // Use FieldNormalizerService to normalize/classify the value
     this.fieldNormalizer.normalizeValue(field, value).subscribe({
@@ -711,6 +762,15 @@ export class CanvasService {
       if (!field) {
         // Fallback: field not found (shouldn't happen)
         enrichedOutput[fieldId] = value;
+        return;
+      }
+      
+      // Check if field has sub-fields (complex object with shape)
+      if (field.isParent && field.subFields && field.subFields.length > 0) {
+        // Reconstruct structured object from sub-fields
+        console.log(`🔧 Reconstructing object for ${fieldId} from ${field.subFields.length} sub-fields`);
+        const reconstructedValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
+        enrichedOutput[fieldId] = reconstructedValue;
         return;
       }
       

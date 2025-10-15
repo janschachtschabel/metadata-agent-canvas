@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
@@ -9,7 +9,7 @@ import { CanvasFieldState, FieldStatus } from '../../models/canvas-models';
   imports: [CommonModule, FormsModule],
   templateUrl: './canvas-field.component.html',
   styleUrls: ['./canvas-field.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default  // Changed from OnPush for sub-fields support
 })
 export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() field!: CanvasFieldState;
@@ -20,6 +20,7 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
   filteredOptions: string[] = [];
   showAutocomplete = false;
   inputValue = '';
+  showSubFields = false;  // Collapsed by default
 
   constructor() {}
 
@@ -311,5 +312,60 @@ export class CanvasFieldComponent implements OnInit, OnChanges, AfterViewInit {
     }
     
     return tooltip;
+  }
+
+  /**
+   * Toggle sub-fields visibility
+   */
+  toggleSubFields(): void {
+    this.showSubFields = !this.showSubFields;
+    console.log(`📂 ${this.field.fieldId}: Sub-fields ${this.showSubFields ? 'expanded' : 'collapsed'}`);
+  }
+
+  /**
+   * Handle changes from sub-fields (propagate to parent)
+   */
+  onSubFieldChange(event: { fieldId: string; value: any }): void {
+    console.log(`📤 Sub-field change detected:`, event);
+    // Propagate to parent through fieldChange event
+    this.fieldChange.emit(event);
+  }
+
+  /**
+   * Get preview text for structured fields (fields with sub-fields)
+   * Shows the first meaningful value from sub-fields
+   */
+  getStructuredPreview(): string {
+    if (!this.field.subFields || this.field.subFields.length === 0) {
+      return 'Keine Daten';
+    }
+
+    // Try to find a "name" field first (most descriptive)
+    const nameField = this.field.subFields.find(f => 
+      f.path?.toLowerCase().includes('name') && f.value
+    );
+    if (nameField && nameField.value) {
+      return String(nameField.value);
+    }
+
+    // Otherwise, find the first non-empty text field
+    const firstFilledField = this.field.subFields.find(f => 
+      f.value && typeof f.value === 'string' && f.value.trim() !== ''
+    );
+    if (firstFilledField && firstFilledField.value) {
+      return String(firstFilledField.value);
+    }
+
+    // Fallback: count how many fields are filled
+    const filledCount = this.field.subFields.filter(f => 
+      f.value !== null && f.value !== undefined && 
+      (typeof f.value !== 'string' || f.value.trim() !== '')
+    ).length;
+
+    if (filledCount > 0) {
+      return `${filledCount} von ${this.field.subFields.length} Felder ausgefüllt`;
+    }
+
+    return 'Noch keine Daten';
   }
 }
