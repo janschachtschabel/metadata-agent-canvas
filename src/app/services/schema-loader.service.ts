@@ -166,6 +166,31 @@ export class SchemaLoaderService {
   }
 
   /**
+   * Get vocabulary concepts for content type detection (requires core schema to be cached)
+   */
+  getContentTypeConcepts(): Array<{ schema_file?: string; label: string; description?: string }> {
+    const coreSchema = this.schemaCache.get('core.json');
+
+    if (!coreSchema?.fields) {
+      console.warn('⚠️ Core schema not cached. Content type descriptions unavailable.');
+      return [];
+    }
+
+    const field = coreSchema.fields.find((f: any) => f.id === 'ccm:oeh_flex_lrt');
+    const concepts = field?.system?.vocabulary?.concepts;
+
+    if (!Array.isArray(concepts)) {
+      return [];
+    }
+
+    return concepts.map((concept: any) => ({
+      schema_file: concept.schema_file,
+      label: concept.label,
+      description: concept.description
+    }));
+  }
+
+  /**
    * Get groups from a schema
    */
   getGroups(schemaName: string): Observable<Array<{ id: string; label: string }>> {

@@ -1,6 +1,6 @@
 {
   "profileId": "type:event",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "@context": {
     "schema": "https://schema.org/",
     "oeh": "http://w3id.org/openeduhub/vocabs/",
@@ -9,19 +9,19 @@
   "groups": [
     {
       "id": "classification",
-      "label": "Klassifikation"
+      "label": "Event-Klassifikation"
     },
     {
       "id": "schedule",
-      "label": "Zeit & Status"
+      "label": "Termin & Status"
     },
     {
       "id": "attendance",
-      "label": "Teilnahme & Ort"
+      "label": "Teilnahme & Orte"
     },
     {
       "id": "roles",
-      "label": "Rollen"
+      "label": "Akteur:innen & Rollen"
     },
     {
       "id": "commerce",
@@ -29,18 +29,18 @@
     },
     {
       "id": "education",
-      "label": "Bildungsspezifisch"
+      "label": "Bildungsdetails"
     },
     {
       "id": "relations",
-      "label": "Bezüge & Struktur"
+      "label": "Verknüpfungen & Inhalte"
     }
   ],
   "fields": [
     {
       "id": "oeh:eventType",
       "group": "classification",
-      "group_label": "Klassifikation",
+      "group_label": "Event-Klassifikation",
       "prompt": {
         "label": "Veranstaltungstyp",
         "description": "Wähle/n oder erkenne die passenden Veranstaltungstypen (SKOS, hierarchisch).",
@@ -550,9 +550,146 @@
       }
     },
     {
+      "id": "schema:maximumAttendeeCapacity",
+      "group": "attendance",
+      "group_label": "Teilnahme & Orte",
+      "prompt": {
+        "label": "Max. Teilnehmendenzahl",
+        "description": "Gesamtkapazität (Integer)."
+      },
+      "system": {
+        "path": "schema:maximumAttendeeCapacity",
+        "uri": "https://schema.org/maximumAttendeeCapacity",
+        "datatype": "number",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "integer": true,
+          "min": 0
+        },
+        "index": {
+          "keyword": true
+        }
+      }
+    },
+    {
+      "id": "schema:maximumPhysicalAttendeeCapacity",
+      "group": "attendance",
+      "group_label": "Teilnahme & Orte",
+      "prompt": {
+        "label": "Max. physische Teilnehmendenzahl",
+        "description": "Kapazität für Vor-Ort-Teilnehmende (Integer)."
+      },
+      "system": {
+        "path": "schema:maximumPhysicalAttendeeCapacity",
+        "uri": "https://schema.org/maximumPhysicalAttendeeCapacity",
+        "datatype": "number",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "integer": true,
+          "min": 0
+        },
+        "index": {
+          "keyword": true
+        }
+      }
+    },
+    {
+      "id": "schema:maximumVirtualAttendeeCapacity",
+      "group": "attendance",
+      "group_label": "Teilnahme & Orte",
+      "prompt": {
+        "label": "Max. virtuelle Teilnehmendenzahl",
+        "description": "Kapazität für Online-Teilnehmende (Integer)."
+      },
+      "system": {
+        "path": "schema:maximumVirtualAttendeeCapacity",
+        "uri": "https://schema.org/maximumVirtualAttendeeCapacity",
+        "datatype": "number",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "integer": true,
+          "min": 0
+        },
+        "index": {
+          "keyword": true
+        }
+      }
+    },
+    {
+      "id": "schema:eventSchedule",
+      "group": "schedule",
+      "group_label": "Termin & Status",
+      "prompt": {
+        "label": "Wiederkehrender Terminplan",
+        "description": "Zeitplan für wiederkehrende Veranstaltungen (Schedule-Objekt)."
+      },
+      "system": {
+        "path": "schema:eventSchedule",
+        "uri": "https://schema.org/eventSchedule",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "datatype": "object",
+          "shape": {
+            "@type": "Schedule",
+            "repeatFrequency": "string",
+            "repeatCount": "number",
+            "startDate": "string",
+            "endDate": "string",
+            "byDay": "array",
+            "byMonth": "array",
+            "byMonthDay": "array",
+            "byHour": "array",
+            "scheduleTimezone": "string",
+            "duration": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "schema:openingHoursSpecification",
+      "group": "schedule",
+      "group_label": "Termin & Status",
+      "prompt": {
+        "label": "Öffnungszeiten / Einlasszeiten",
+        "description": "Strukturierte Öffnungs- oder Einlasszeiten (dayOfWeek, opens, closes)."
+      },
+      "system": {
+        "path": "schema:openingHoursSpecification",
+        "uri": "https://schema.org/openingHoursSpecification",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "datatype": "object",
+          "shape": {
+            "dayOfWeek": "array",
+            "opens": "string",
+            "closes": "string",
+            "validFrom": "string",
+            "validThrough": "string"
+          }
+        }
+      }
+    },
+    {
       "id": "schema:startDate",
       "group": "schedule",
-      "group_label": "Zeit & Status",
+      "group_label": "Termin & Status",
       "prompt": {
         "label": "Start (Datum/Zeit)",
         "description": "Start im ISO 8601-Format, z. B. 2026-09-15 oder 2026-09-15T09:00:00+02:00."
@@ -562,7 +699,7 @@
         "uri": "https://schema.org/startDate",
         "datatype": "date",
         "multiple": false,
-        "required": false,
+        "required": true,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
@@ -579,7 +716,7 @@
     {
       "id": "schema:endDate",
       "group": "schedule",
-      "group_label": "Zeit & Status",
+      "group_label": "Termin & Status",
       "prompt": {
         "label": "Ende (Datum/Zeit)",
         "description": "Optionales Ende im ISO 8601-Format."
@@ -606,7 +743,7 @@
     {
       "id": "schema:doorTime",
       "group": "schedule",
-      "group_label": "Zeit & Status",
+      "group_label": "Termin & Status",
       "prompt": {
         "label": "Einlass (Zeit)",
         "description": "Zeitpunkt des Einlasses (ISO 8601 DateTime oder HH:MM)."
@@ -617,7 +754,7 @@
         "datatype": "date",
         "multiple": false,
         "required": false,
-        "ask_user": false,
+        "ask_user": true,
         "ai_fillable": true,
         "index": {
           "keyword": true
@@ -630,7 +767,7 @@
     {
       "id": "schema:eventStatus",
       "group": "schedule",
-      "group_label": "Zeit & Status",
+      "group_label": "Termin & Status",
       "prompt": {
         "label": "Status",
         "description": "Geplanter/abgesagter/verschobener Status."
@@ -676,7 +813,7 @@
     {
       "id": "schema:previousStartDate",
       "group": "schedule",
-      "group_label": "Zeit & Status",
+      "group_label": "Termin & Status",
       "prompt": {
         "label": "Vorheriger Start",
         "description": "Vorheriges Startdatum bei Verschiebung (ISO 8601)."
@@ -687,7 +824,7 @@
         "datatype": "date",
         "multiple": true,
         "required": false,
-        "ask_user": false,
+        "ask_user": true,
         "ai_fillable": true,
         "index": {
           "keyword": true
@@ -703,7 +840,7 @@
     {
       "id": "schema:duration",
       "group": "schedule",
-      "group_label": "Zeit & Status",
+      "group_label": "Termin & Status",
       "prompt": {
         "label": "Dauer",
         "description": "ISO 8601 Dauer, z. B. P1D, PT90M."
@@ -714,7 +851,7 @@
         "datatype": "string",
         "multiple": false,
         "required": false,
-        "ask_user": false,
+        "ask_user": true,
         "ai_fillable": true,
         "index": {
           "keyword": true
@@ -730,7 +867,7 @@
     {
       "id": "schema:eventAttendanceMode",
       "group": "attendance",
-      "group_label": "Teilnahme & Ort",
+      "group_label": "Teilnahme & Orte",
       "prompt": {
         "label": "Teilnahmemodus",
         "description": "Online, vor Ort oder gemischt."
@@ -740,7 +877,7 @@
         "uri": "https://schema.org/eventAttendanceMode",
         "datatype": "string",
         "multiple": false,
-        "required": false,
+        "required": true,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
@@ -771,7 +908,7 @@
     {
       "id": "schema:location",
       "group": "attendance",
-      "group_label": "Teilnahme & Ort",
+      "group_label": "Teilnahme & Orte",
       "prompt": {
         "label": "Ort",
         "description": "Ort als Place/Address oder virtuelle URL.",
@@ -795,41 +932,44 @@
       "system": {
         "path": "schema:location",
         "uri": "https://schema.org/location",
-        "datatype": "object",
-        "multiple": false,
-        "required": false,
+        "datatype": "array",
+        "multiple": true,
+        "required": true,
         "ask_user": true,
         "ai_fillable": true,
         "index": {
           "fulltext": true,
           "keyword": true
         },
-        "shape": {
-          "oneOf": [
-            {
-              "@type": "Place",
-              "name": "string",
-              "address": {
-                "streetAddress": "string",
-                "postalCode": "string",
-                "addressLocality": "string",
-                "addressRegion": "string?",
-                "addressCountry": "string"
+        "items": {
+          "datatype": "object",
+          "shape": {
+            "oneOf": [
+              {
+                "@type": "Place",
+                "name": "string",
+                "address": {
+                  "streetAddress": "string",
+                  "postalCode": "string",
+                  "addressLocality": "string",
+                  "addressRegion": "string",
+                  "addressCountry": "string"
+                },
+                "geo": {
+                  "latitude": "number",
+                  "longitude": "number"
+                },
+                "sameAs": "uri"
               },
-              "geo": {
-                "latitude": "number?",
-                "longitude": "number?"
+              {
+                "@type": "VirtualLocation",
+                "url": "uri"
               },
-              "sameAs": "uri?"
-            },
-            {
-              "@type": "VirtualLocation",
-              "url": "uri"
-            },
-            {
-              "@type": "PostalAddress"
-            }
-          ]
+              {
+                "@type": "PostalAddress"
+              }
+            ]
+          }
         },
         "normalization": {
           "trim": true
@@ -839,7 +979,7 @@
     {
       "id": "schema:isAccessibleForFree",
       "group": "attendance",
-      "group_label": "Teilnahme & Ort",
+      "group_label": "Teilnahme & Orte",
       "prompt": {
         "label": "Kostenfrei?",
         "description": "Gibt an, ob die Teilnahme kostenlos ist."
@@ -858,34 +998,43 @@
       }
     },
     {
-      "id": "schema:maximumAttendeeCapacity",
-      "group": "attendance",
-      "group_label": "Teilnahme & Ort",
+      "id": "schema:actor",
+      "group": "roles",
+      "group_label": "Akteur:innen & Rollen",
       "prompt": {
-        "label": "Max. Teilnehmendenzahl",
-        "description": "Gesamtkapazität (Integer)."
+        "label": "Akteur:innen",
+        "description": "Sprecher:innen, Workshop-Leitende oder andere Akteur:innen."
       },
       "system": {
-        "path": "schema:maximumAttendeeCapacity",
-        "uri": "https://schema.org/maximumAttendeeCapacity",
-        "datatype": "number",
-        "multiple": false,
+        "path": "schema:actor",
+        "uri": "https://schema.org/actor",
+        "datatype": "array",
+        "multiple": true,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": {
-          "integer": true,
-          "min": 0
-        },
         "index": {
+          "fulltext": true,
           "keyword": true
+        },
+        "items": {
+          "datatype": "object",
+          "shape": {
+            "name": "string",
+            "url": "uri",
+            "sameAs": "uri"
+          }
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
         }
       }
     },
     {
       "id": "schema:organizer",
       "group": "roles",
-      "group_label": "Rollen",
+      "group_label": "Akteur:innen & Rollen",
       "prompt": {
         "label": "Organisator:in(en)",
         "description": "Organisation(en) oder Person(en), die das Event organisieren."
@@ -905,9 +1054,15 @@
         "items": {
           "datatype": "object",
           "shape": {
-            "name": "string",
-            "url": "uri?",
-            "sameAs": "uri?"
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "uri"
+            },
+            "sameAs": {
+              "type": "uri"
+            }
           }
         },
         "normalization": {
@@ -919,7 +1074,7 @@
     {
       "id": "schema:performer",
       "group": "roles",
-      "group_label": "Rollen",
+      "group_label": "Akteur:innen & Rollen",
       "prompt": {
         "label": "Mitwirkende/Performer",
         "description": "Performer:innen (z. B. Vortragende, Bands)."
@@ -939,7 +1094,7 @@
           "datatype": "object",
           "shape": {
             "name": "string",
-            "url": "uri?"
+            "url": "uri"
           }
         },
         "normalization": {
@@ -951,7 +1106,7 @@
     {
       "id": "schema:attendee",
       "group": "roles",
-      "group_label": "Rollen",
+      "group_label": "Akteur:innen & Rollen",
       "prompt": {
         "label": "Teilnehmende (bekannt)",
         "description": "Optionale Nennung bekannter Teilnehmender (Org/Person)."
@@ -962,7 +1117,7 @@
         "datatype": "array",
         "multiple": true,
         "required": false,
-        "ask_user": false,
+        "ask_user": true,
         "ai_fillable": true,
         "index": {
           "fulltext": true
@@ -971,7 +1126,7 @@
           "datatype": "object",
           "shape": {
             "name": "string",
-            "url": "uri?"
+            "url": "uri"
           }
         },
         "normalization": {
@@ -1003,12 +1158,60 @@
           "datatype": "object",
           "shape": {
             "@type": "Offer",
-            "price": "number?",
-            "priceCurrency": "string?",
-            "url": "uri?",
-            "availability": "string?",
-            "validFrom": "string?",
-            "validThrough": "string?"
+            "price": "number",
+            "priceCurrency": "string",
+            "url": "uri",
+            "availability": "string",
+            "validFrom": "string",
+            "validThrough": "string",
+            "acceptedPaymentMethod": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "paymentMethod": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:accessService",
+      "group": "attendance",
+      "group_label": "Teilnahme & Orte",
+      "prompt": {
+        "label": "Zugang / Onlinedienst",
+        "description": "Service oder Zugang für Online-Teilnahme (z. B. Plattform, Zugangscode)."
+      },
+      "system": {
+        "path": "schema:accessService",
+        "uri": "https://schema.org/accessService",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true,
+          "fulltext": true
+        },
+        "items": {
+          "datatype": "object",
+          "shape": {
+            "@type": "string",
+            "url": "uri",
+            "serviceUrl": "uri",
+            "serviceType": "string",
+            "description": "string"
           }
         },
         "normalization": {
@@ -1031,7 +1234,7 @@
         "datatype": "number",
         "multiple": false,
         "required": false,
-        "ask_user": false,
+        "ask_user": true,
         "ai_fillable": true,
         "validation": {
           "integer": true,
@@ -1045,7 +1248,7 @@
     {
       "id": "schema:assesses",
       "group": "education",
-      "group_label": "Bildungsspezifisch",
+      "group_label": "Bildungsdetails",
       "prompt": {
         "label": "Assessments/Kompetenzen",
         "description": "Welche Kompetenz/Outcome wird geprüft?"
@@ -1073,7 +1276,7 @@
     {
       "id": "schema:teaches",
       "group": "education",
-      "group_label": "Bildungsspezifisch",
+      "group_label": "Bildungsdetails",
       "prompt": {
         "label": "Lernziele/Inhalte",
         "description": "Welche Kompetenz/Outcome wird vermittelt?"
@@ -1101,7 +1304,7 @@
     {
       "id": "schema:about",
       "group": "relations",
-      "group_label": "Bezüge & Struktur",
+      "group_label": "Verknüpfungen & Inhalte",
       "prompt": {
         "label": "Themen/Bezug",
         "description": "Worauf bezieht sich das Event? (URIs oder Freitext)"
@@ -1130,7 +1333,7 @@
     {
       "id": "schema:superEvent",
       "group": "relations",
-      "group_label": "Bezüge & Struktur",
+      "group_label": "Verknüpfungen & Inhalte",
       "prompt": {
         "label": "Übergeordnetes Event",
         "description": "URI/ID des übergeordneten Events."
@@ -1154,7 +1357,7 @@
     {
       "id": "schema:subEvent",
       "group": "relations",
-      "group_label": "Bezüge & Struktur",
+      "group_label": "Verknüpfungen & Inhalte",
       "prompt": {
         "label": "Unter-Events",
         "description": "Liste von URIs/IDs untergeordneter Events."
@@ -1180,9 +1383,43 @@
       }
     },
     {
+      "id": "schema:recordedIn",
+      "group": "relations",
+      "group_label": "Verknüpfungen & Inhalte",
+      "prompt": {
+        "label": "Aufzeichnung / Mitschnitt",
+        "description": "Verknüpfte Aufzeichnung als CreativeWork (z. B. Video-URL)."
+      },
+      "system": {
+        "path": "schema:recordedIn",
+        "uri": "https://schema.org/recordedIn",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true,
+          "fulltext": true
+        },
+        "items": {
+          "datatype": "object",
+          "shape": {
+            "@type": "string",
+            "name": "string",
+            "url": "uri"
+          }
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
       "id": "schema:workFeatured",
       "group": "relations",
-      "group_label": "Bezüge & Struktur",
+      "group_label": "Verknüpfungen & Inhalte",
       "prompt": {
         "label": "Präsentierte Werke",
         "description": "Gezeigte/ausgestellte Werke (URI/Name)."
@@ -1193,7 +1430,7 @@
         "datatype": "array",
         "multiple": true,
         "required": false,
-        "ask_user": false,
+        "ask_user": true,
         "ai_fillable": true,
         "index": {
           "fulltext": true,
@@ -1211,17 +1448,23 @@
   ],
   "output_template": {
     "oeh:eventType": [],
+    "schema:eventSchedule": [],
     "schema:startDate": "",
     "schema:endDate": "",
     "schema:doorTime": "",
+    "schema:openingHoursSpecification": [],
     "schema:eventStatus": "",
     "schema:previousStartDate": [],
     "schema:duration": "",
     "schema:eventAttendanceMode": "",
-    "schema:location": {},
+    "schema:location": [],
     "schema:isAccessibleForFree": null,
     "schema:maximumAttendeeCapacity": null,
+    "schema:maximumPhysicalAttendeeCapacity": null,
+    "schema:maximumVirtualAttendeeCapacity": null,
+    "schema:accessService": [],
     "schema:organizer": [],
+    "schema:actor": [],
     "schema:performer": [],
     "schema:attendee": [],
     "schema:offers": [],
@@ -1231,6 +1474,7 @@
     "schema:about": [],
     "schema:superEvent": "",
     "schema:subEvent": [],
-    "schema:workFeatured": []
+    "schema:workFeatured": [],
+    "schema:recordedIn": []
   }
 }

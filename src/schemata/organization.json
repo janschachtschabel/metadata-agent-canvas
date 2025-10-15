@@ -1,66 +1,57 @@
 {
   "profileId": "oeh:organizationLocation",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "@context": {
     "schema": "https://schema.org/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "oeh": "http://w3id.org/openeduhub/vocabs/"
   },
-  "output_template": {
-    "@type": [
-      "schema:Organization"
-    ],
-    "schema:name": "",
-    "oeh:locationType": [],
-    "schema:legalName": "",
-    "schema:alternateName": [],
-    "schema:description": "",
-    "schema:url": "",
-    "schema:sameAs": [],
-    "schema:logo": "",
-    "schema:email": "",
-    "schema:telephone": "",
-    "schema:address": {
-      "streetAddress": "",
-      "postalCode": "",
-      "addressLocality": "",
-      "addressRegion": "",
-      "addressCountry": ""
+  "groups": [
+    {
+      "id": "base",
+      "label": "Basisangaben"
     },
-    "schema:geo": {
-      "latitude": null,
-      "longitude": null
+    {
+      "id": "classification",
+      "label": "Typ & Status"
     },
-    "schema:openingHours": [],
-    "schema:openingHoursSpecification": [],
-    "schema:publicAccess": null,
-    "schema:areaServed": [],
-    "schema:foundingDate": "",
-    "schema:founder": [],
-    "schema:parentOrganization": "",
-    "schema:subOrganization": [],
-    "schema:department": [],
-    "schema:location": "",
-    "schema:legalAddress": {
-      "streetAddress": "",
-      "postalCode": "",
-      "addressLocality": "",
-      "addressRegion": "",
-      "addressCountry": ""
+    {
+      "id": "identity",
+      "label": "Profil & Beschreibung"
     },
-    "schema:taxID": "",
-    "schema:vatID": "",
-    "schema:leiCode": "",
-    "schema:duns": "",
-    "schema:iso6523Code": "",
-    "schema:naics": "",
-    "schema:isicV4": "",
-    "schema:contactPoint": [],
-    "schema:maximumAttendeeCapacity": null,
-    "schema:hasMap": "",
-    "schema:tourBookingPage": "",
-    "schema:alumni": []
-  },
+    {
+      "id": "web",
+      "label": "Web & Profile"
+    },
+    {
+      "id": "contact",
+      "label": "Kontakt & Service"
+    },
+    {
+      "id": "location",
+      "label": "Ort & Adresse"
+    },
+    {
+      "id": "geo",
+      "label": "Anreise & Karten"
+    },
+    {
+      "id": "hours",
+      "label": "Öffnungszeiten & Zugang"
+    },
+    {
+      "id": "visitor",
+      "label": "Besuch & Angebote"
+    },
+    {
+      "id": "org",
+      "label": "Struktur & Netzwerk"
+    },
+    {
+      "id": "service",
+      "label": "Region & Wirkung"
+    }
+  ],
   "fields": [
     {
       "id": "schema:name",
@@ -71,7 +62,7 @@
       },
       "system": {
         "path": "schema:name",
-        "uri": "schema:name",
+        "uri": "https://schema.org/name",
         "datatype": "string",
         "multiple": false,
         "required": false,
@@ -80,6 +71,50 @@
         "index": {
           "fulltext": true
         },
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "schema:accessibilitySupport",
+      "group": "visitor",
+      "prompt": {
+        "label": "Unterstützungsangebote",
+        "description": "Beschreibung spezieller Unterstützungsangebote (z. B. Assistenz, Gebärdensprachdolmetschung)."
+      },
+      "system": {
+        "path": "schema:accessibilitySupport",
+        "uri": "https://schema.org/accessibilitySupport",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:legalName",
+      "group": "base",
+      "prompt": {
+        "label": "Rechtlicher Name",
+        "description": "Offizieller, eingetragener Name (falls abweichend vom Namen)."
+      },
+      "system": {
+        "path": "schema:legalName",
+        "uri": "https://schema.org/legalName",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
         "normalization": {
           "trim": true
         }
@@ -100,13 +135,14 @@
         "required": true,
         "ask_user": true,
         "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
         "index": {
           "keyword": true
         },
         "vocabulary": {
-          "type": "skos",
-          "scheme": "http://w3id.org/openeduhub/vocabs/locationType/",
-          "hierarchical": false,
+          "type": "closed",
           "concepts": [
             {
               "label": "Lernort",
@@ -281,12 +317,12 @@
               "uri": "http://w3id.org/openeduhub/vocabs/locationType/41551cc5-5c1c-4d5d-bab1-3dda6855fcbb"
             },
             {
-              "label": "Beratungs-oder Serviceeinrichtung",
+              "label": "Beratungs- oder Serviceeinrichtung",
               "uri": "http://w3id.org/openeduhub/vocabs/locationType/F01fd913-6d3b-475b-bfc7-047096084e70"
             },
             {
               "label": "kommerzielles Unternehmen",
-              "uri": "http://w3id.org/openeduhub/vocabs/locationType/75fa653f-c0a2-4a64-8b6b-cf7191c4d4d1"
+              "uri": "http://w3id.org/openeduhub/vocabs/locationType/75fa653f-c0a2-4a64-8b6f-cf7191c4d4d1"
             },
             {
               "label": "soziales Unternehmen oder NRO",
@@ -334,23 +370,78 @@
       }
     },
     {
-      "id": "schema:legalName",
-      "group": "identity",
+      "id": "schema:additionalType",
+      "group": "classification",
       "prompt": {
-        "label": "Rechtlicher Name",
-        "description": "Offizieller, eingetragener Name (falls abweichend vom Namen)."
+        "label": "Weitere Typen (URIs)",
+        "description": "Zusätzliche Klassifikationen oder Typen (URI oder kontrollierter Begriff)."
       },
       "system": {
-        "path": "schema:legalName",
-        "uri": "schema:legalName",
-        "datatype": "string",
-        "multiple": false,
+        "path": "schema:additionalType",
+        "uri": "https://schema.org/additionalType",
+        "datatype": "array",
+        "multiple": true,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
         "normalization": {
-          "trim": true
+          "trim": true,
+          "deduplicate": true
         }
+      }
+    },
+    {
+      "id": "oeh:isNonprofit",
+      "group": "classification",
+      "prompt": {
+        "label": "Gemeinnützig?",
+        "description": "Kennzeichnet, ob die Organisation gemeinnützig ist."
+      },
+      "system": {
+        "path": "oeh:isNonprofit",
+        "uri": "oeh:isNonprofit",
+        "datatype": "boolean",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true
+      }
+    },
+    {
+      "id": "oeh:isLearningPlace",
+      "group": "classification",
+      "prompt": {
+        "label": "Lernort?",
+        "description": "Gibt an, ob die Organisation zugleich ein Lernort ist."
+      },
+      "system": {
+        "path": "oeh:isLearningPlace",
+        "uri": "oeh:isLearningPlace",
+        "datatype": "boolean",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true
+      }
+    },
+    {
+      "id": "oeh:officiallyRecognized",
+      "group": "classification",
+      "prompt": {
+        "label": "Amtlich anerkannt?",
+        "description": "Gibt an, ob die Einrichtung offiziell als Bildungsträger anerkannt ist."
+      },
+      "system": {
+        "path": "oeh:officiallyRecognized",
+        "uri": "oeh:officiallyRecognized",
+        "datatype": "boolean",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true
       }
     },
     {
@@ -362,7 +453,7 @@
       },
       "system": {
         "path": "schema:alternateName",
-        "uri": "schema:alternateName",
+        "uri": "https://schema.org/alternateName",
         "datatype": "array",
         "multiple": true,
         "required": false,
@@ -383,7 +474,7 @@
       },
       "system": {
         "path": "schema:description",
-        "uri": "schema:description",
+        "uri": "https://schema.org/description",
         "datatype": "string",
         "multiple": false,
         "required": false,
@@ -406,7 +497,7 @@
       },
       "system": {
         "path": "schema:url",
-        "uri": "schema:url",
+        "uri": "https://schema.org/url",
         "datatype": "string",
         "multiple": false,
         "required": false,
@@ -429,7 +520,7 @@
       },
       "system": {
         "path": "schema:sameAs",
-        "uri": "schema:sameAs",
+        "uri": "https://schema.org/sameAs",
         "datatype": "array",
         "multiple": true,
         "required": false,
@@ -453,7 +544,7 @@
       },
       "system": {
         "path": "schema:logo",
-        "uri": "schema:logo",
+        "uri": "https://schema.org/logo",
         "datatype": "string",
         "multiple": false,
         "required": false,
@@ -472,16 +563,19 @@
       "group": "contact",
       "prompt": {
         "label": "E-Mail",
-        "description": "Allgemeine Kontaktadresse."
+        "description": "E-Mail-Adresse der Organisation."
       },
       "system": {
         "path": "schema:email",
-        "uri": "schema:email",
+        "uri": "https://schema.org/email",
         "datatype": "string",
         "multiple": false,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
+        "validation": {
+          "regex": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
         "normalization": {
           "trim": true
         }
@@ -496,7 +590,27 @@
       },
       "system": {
         "path": "schema:telephone",
-        "uri": "schema:telephone",
+        "uri": "https://schema.org/telephone",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "schema:faxNumber",
+      "group": "contact",
+      "prompt": {
+        "label": "Fax",
+        "description": "Faxnummer (falls vorhanden)."
+      },
+      "system": {
+        "path": "schema:faxNumber",
+        "uri": "https://schema.org/faxNumber",
         "datatype": "string",
         "multiple": false,
         "required": false,
@@ -516,7 +630,7 @@
       },
       "system": {
         "path": "schema:contactPoint",
-        "uri": "schema:contactPoint",
+        "uri": "https://schema.org/contactPoint",
         "datatype": "array",
         "multiple": true,
         "required": false,
@@ -534,9 +648,138 @@
             "telephone": {
               "type": "string"
             },
+            "faxNumber": {
+              "type": "string"
+            },
             "availableLanguage": {
               "type": "array"
             }
+          }
+        }
+      }
+    },
+    {
+      "id": "schema:address",
+      "group": "location",
+      "prompt": {
+        "label": "Adresse",
+        "description": "Physische Adresse (Besuchsadresse)."
+      },
+      "system": {
+        "path": "schema:address",
+        "uri": "https://schema.org/address",
+        "datatype": "object",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "shape": {
+          "streetAddress": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "addressLocality": {
+            "type": "string"
+          },
+          "addressRegion": {
+            "type": "string"
+          },
+          "addressCountry": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "schema:legalAddress",
+      "group": "location",
+      "prompt": {
+        "label": "Rechtliche Adresse",
+        "description": "Amtliche Postadresse (z. B. Verwaltung)."
+      },
+      "system": {
+        "path": "schema:legalAddress",
+        "uri": "https://schema.org/legalAddress",
+        "datatype": "object",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "shape": {
+          "streetAddress": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "addressLocality": {
+            "type": "string"
+          },
+          "addressRegion": {
+            "type": "string"
+          },
+          "addressCountry": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "schema:location",
+      "group": "location",
+      "prompt": {
+        "label": "Weitere Standorte & virtuelle Zugänge",
+        "description": "Zusätzliche Orte als Place/Address oder virtuelle Zugangsdaten (z. B. Hybrid-Angebote)."
+      },
+      "system": {
+        "path": "schema:location",
+        "uri": "https://schema.org/location",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "object",
+          "shape": {
+            "oneOf": [
+              {
+                "@type": "Place",
+                "name": "string",
+                "address": {
+                  "streetAddress": "string",
+                  "postalCode": "string",
+                  "addressLocality": "string",
+                  "addressRegion": "string",
+                  "addressCountry": "string"
+                },
+                "geo": {
+                  "latitude": "number",
+                  "longitude": "number"
+                },
+                "sameAs": "uri",
+                "accessibilitySummary": "string",
+                "accessibilitySupport": "string"
+              },
+              {
+                "@type": "VirtualLocation",
+                "url": "uri",
+                "accessibilitySummary": "string",
+                "accessibilitySupport": "string"
+              },
+              {
+                "@type": "PostalAddress",
+                "streetAddress": "string",
+                "postalCode": "string",
+                "addressLocality": "string",
+                "addressRegion": "string",
+                "addressCountry": "string",
+                "accessibilitySummary": "string",
+                "accessibilitySupport": "string"
+              }
+            ]
           }
         },
         "normalization": {
@@ -546,83 +789,20 @@
       }
     },
     {
-      "id": "schema:address",
-      "group": "address",
+      "id": "schema:directions",
+      "group": "geo",
       "prompt": {
-        "label": "Physische Adresse",
-        "description": "Standortadresse der Organisation/des Ortes."
+        "label": "Wegbeschreibung",
+        "description": "Freitext-Hinweise zur Anfahrt."
       },
       "system": {
-        "path": "schema:address",
-        "uri": "schema:address",
-        "datatype": "object",
+        "path": "schema:directions",
+        "uri": "https://schema.org/directions",
+        "datatype": "string",
         "multiple": false,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "items": {
-          "type": "object",
-          "shape": {
-            "streetAddress": {
-              "type": "string"
-            },
-            "postalCode": {
-              "type": "string"
-            },
-            "addressLocality": {
-              "type": "string"
-            },
-            "addressRegion": {
-              "type": "string"
-            },
-            "addressCountry": {
-              "type": "string"
-            }
-          }
-        },
-        "index": {
-          "fulltext": true
-        },
-        "normalization": {
-          "trim": true
-        }
-      }
-    },
-    {
-      "id": "schema:legalAddress",
-      "group": "address",
-      "prompt": {
-        "label": "Rechts-/Registeradresse",
-        "description": "Gesetzlicher Sitz für rechtliche/steuerliche Zwecke."
-      },
-      "system": {
-        "path": "schema:legalAddress",
-        "uri": "schema:legalAddress",
-        "datatype": "object",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "items": {
-          "type": "object",
-          "shape": {
-            "streetAddress": {
-              "type": "string"
-            },
-            "postalCode": {
-              "type": "string"
-            },
-            "addressLocality": {
-              "type": "string"
-            },
-            "addressRegion": {
-              "type": "string"
-            },
-            "addressCountry": {
-              "type": "string"
-            }
-          }
-        },
         "normalization": {
           "trim": true
         }
@@ -633,26 +813,77 @@
       "group": "geo",
       "prompt": {
         "label": "Koordinaten",
-        "description": "Breiten- und Längengrad (WGS84)."
+        "description": "Geokoordinaten (Breite/Länge, WGS84)."
       },
       "system": {
         "path": "schema:geo",
-        "uri": "schema:geo",
+        "uri": "https://schema.org/geo",
         "datatype": "object",
         "multiple": false,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "items": {
-          "type": "object",
-          "shape": {
-            "latitude": {
-              "type": "number"
-            },
-            "longitude": {
-              "type": "number"
-            }
+        "shape": {
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
           }
+        }
+      }
+    },
+    {
+      "id": "oeh:transportAccess",
+      "group": "geo",
+      "prompt": {
+        "label": "Anreise & Verkehr",
+        "description": "Informationen zu ÖPNV, Autoanreise und Parkmöglichkeiten."
+      },
+      "system": {
+        "path": "oeh:transportAccess",
+        "uri": "oeh:transportAccess",
+        "datatype": "object",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "shape": {
+          "publicTransport": {
+            "type": "string"
+          },
+          "car": {
+            "type": "string"
+          },
+          "parking": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "schema:hasMap",
+      "group": "geo",
+      "prompt": {
+        "label": "Kartenlink",
+        "description": "Link zu einer Karte (z. B. OpenStreetMap, Google Maps)."
+      },
+      "system": {
+        "path": "schema:hasMap",
+        "uri": "https://schema.org/hasMap",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "validation": {
+          "regex": "^(https?://|$).*$"
+        },
+        "normalization": {
+          "trim": true
         }
       }
     },
@@ -661,28 +892,35 @@
       "group": "hours",
       "prompt": {
         "label": "Öffnungszeiten (Text)",
-        "description": "Einfache Öffnungszeiten, z. B. 'Mo-Fr 09:00-17:00'."
+        "description": "Freitext-Angaben zu Öffnungszeiten."
       },
       "system": {
         "path": "schema:openingHours",
-        "uri": "schema:openingHours",
+        "uri": "https://schema.org/openingHours",
         "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:openingHoursSpecification",
       "group": "hours",
       "prompt": {
-        "label": "Öffnungszeiten (strukturiert)",
-        "description": "Tagesbezogene Zeiten mit Feldern dayOfWeek, opens, closes."
+        "label": "Öffnungszeiten (Strukturiert)",
+        "description": "Maschinenlesbare Öffnungszeiten mit Wochentagen und Zeiten."
       },
       "system": {
         "path": "schema:openingHoursSpecification",
-        "uri": "schema:openingHoursSpecification",
+        "uri": "https://schema.org/openingHoursSpecification",
         "datatype": "array",
         "multiple": true,
         "required": false,
@@ -714,12 +952,12 @@
       "id": "schema:publicAccess",
       "group": "hours",
       "prompt": {
-        "label": "Öffentlich zugänglich",
-        "description": "Ist der Ort für die Öffentlichkeit zugänglich?"
+        "label": "Öffentlich zugänglich?",
+        "description": "Kennzeichnet, ob der Ort öffentlich zugänglich ist."
       },
       "system": {
         "path": "schema:publicAccess",
-        "uri": "schema:publicAccess",
+        "uri": "https://schema.org/publicAccess",
         "datatype": "boolean",
         "multiple": false,
         "required": false,
@@ -728,38 +966,56 @@
       }
     },
     {
-      "id": "schema:hasMap",
-      "group": "geo",
+      "id": "schema:offers",
+      "group": "visitor",
       "prompt": {
-        "label": "Karte (URL)",
-        "description": "Link zu einer Karte (z. B. Google Maps/OpenStreetMap)."
+        "label": "Eintritt & Tickets",
+        "description": "Angaben zu Eintrittspreisen, Tickets oder Angeboten."
       },
       "system": {
-        "path": "schema:hasMap",
-        "uri": "schema:hasMap",
-        "datatype": "string",
-        "multiple": false,
+        "path": "schema:offers",
+        "uri": "https://schema.org/offers",
+        "datatype": "array",
+        "multiple": true,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
-        "validation": {
-          "regex": "^(https?://|$).*$"
+        "items": {
+          "type": "object",
+          "shape": {
+            "price": {
+              "type": "number"
+            },
+            "priceCurrency": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
         },
         "normalization": {
-          "trim": true
+          "trim": true,
+          "deduplicate": true
         }
       }
     },
     {
       "id": "schema:tourBookingPage",
-      "group": "geo",
+      "group": "visitor",
       "prompt": {
-        "label": "Besuch/Tour buchen (URL)",
-        "description": "Seite zur Tour-/Besuchsbuchung (falls vorhanden)."
+        "label": "Buchungsseite",
+        "description": "Link zu Ticket- oder Führungsbuchungen."
       },
       "system": {
         "path": "schema:tourBookingPage",
-        "uri": "schema:tourBookingPage",
+        "uri": "https://schema.org/tourBookingPage",
         "datatype": "string",
         "multiple": false,
         "required": false,
@@ -775,14 +1031,14 @@
     },
     {
       "id": "schema:maximumAttendeeCapacity",
-      "group": "geo",
+      "group": "visitor",
       "prompt": {
-        "label": "Max. Besucher-/Teilnehmendenkapazität",
-        "description": "Gesamtkapazität des Ortes (Integer)."
+        "label": "Max. Besucherzahl",
+        "description": "Maximale Anzahl an Teilnehmenden/Besuchenden."
       },
       "system": {
         "path": "schema:maximumAttendeeCapacity",
-        "uri": "schema:maximumAttendeeCapacity",
+        "uri": "https://schema.org/maximumAttendeeCapacity",
         "datatype": "integer",
         "multiple": false,
         "required": false,
@@ -791,15 +1047,122 @@
       }
     },
     {
+      "id": "schema:video",
+      "group": "visitor",
+      "prompt": {
+        "label": "Portrait-/Vorstellungsvideo",
+        "description": "Videos, die die Organisation vorstellen (z. B. YouTube/Vimeo)."
+      },
+      "system": {
+        "path": "schema:video",
+        "uri": "https://schema.org/video",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "object",
+          "shape": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:isAccessibleForFree",
+      "group": "visitor",
+      "prompt": {
+        "label": "Kostenfrei zugänglich?",
+        "description": "Kennzeichnet, ob der Besuch ohne Eintrittskosten möglich ist."
+      },
+      "system": {
+        "path": "schema:isAccessibleForFree",
+        "uri": "https://schema.org/isAccessibleForFree",
+        "datatype": "boolean",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true
+      }
+    },
+    {
+      "id": "schema:amenityFeature",
+      "group": "visitor",
+      "prompt": {
+        "label": "Ausstattung & Barrierefreiheit",
+        "description": "Besondere Merkmale oder Services (z. B. barrierefreie Zugänge, Toiletten, Kinderbereiche)."
+      },
+      "system": {
+        "path": "schema:amenityFeature",
+        "uri": "https://schema.org/amenityFeature",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "object",
+          "shape": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:accessibilitySummary",
+      "group": "visitor",
+      "prompt": {
+        "label": "Barrierefreiheits-Infos",
+        "description": "Freitext-Zusammenfassung zu Barrierefreiheit, Zugang und Unterstützungsangeboten."
+      },
+      "system": {
+        "path": "schema:accessibilitySummary",
+        "uri": "https://schema.org/accessibilitySummary",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
       "id": "schema:foundingDate",
       "group": "org",
       "prompt": {
         "label": "Gründungsdatum",
-        "description": "Datum der Gründung (ISO 8601, z. B. 1998-05-20)."
+        "description": "Datum der Gründung."
       },
       "system": {
         "path": "schema:foundingDate",
-        "uri": "schema:foundingDate",
+        "uri": "https://schema.org/foundingDate",
         "datatype": "date",
         "multiple": false,
         "required": false,
@@ -811,17 +1174,24 @@
       "id": "schema:founder",
       "group": "org",
       "prompt": {
-        "label": "Gründer:in/Gründer",
-        "description": "Name von Person(en) oder Organisation(en), die gegründet haben."
+        "label": "Gründer:innen",
+        "description": "Personen oder Organisationen, die die Einrichtung gegründet haben."
       },
       "system": {
         "path": "schema:founder",
-        "uri": "schema:founder",
+        "uri": "https://schema.org/founder",
         "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
@@ -829,16 +1199,19 @@
       "group": "org",
       "prompt": {
         "label": "Übergeordnete Organisation",
-        "description": "Name oder URI der Mutterorganisation."
+        "description": "Name der übergeordneten Einrichtung."
       },
       "system": {
         "path": "schema:parentOrganization",
-        "uri": "schema:parentOrganization",
+        "uri": "https://schema.org/parentOrganization",
         "datatype": "string",
         "multiple": false,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "normalization": {
+          "trim": true
+        }
       }
     },
     {
@@ -846,191 +1219,291 @@
       "group": "org",
       "prompt": {
         "label": "Untergeordnete Organisation(en)",
-        "description": "Abteilungen/Tochterorganisationen."
+        "description": "Abteilungen oder Tochterorganisationen."
       },
       "system": {
         "path": "schema:subOrganization",
-        "uri": "schema:subOrganization",
+        "uri": "https://schema.org/subOrganization",
         "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:branchCode",
+      "group": "org",
+      "prompt": {
+        "label": "Filial-/Standortcode",
+        "description": "Interner Code zur Identifikation des Standorts (z. B. Niederlassungs- oder Campus-Kennung)."
+      },
+      "system": {
+        "path": "schema:branchCode",
+        "uri": "https://schema.org/branchCode",
+        "datatype": "string",
+        "multiple": false,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "normalization": {
+          "trim": true
+        }
+      }
+    },
+    {
+      "id": "schema:award",
+      "group": "org",
+      "prompt": {
+        "label": "Auszeichnungen",
+        "description": "Awards oder Zertifikate, die die Organisation erhalten hat."
+      },
+      "system": {
+        "path": "schema:award",
+        "uri": "https://schema.org/award",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:hasCertification",
+      "group": "org",
+      "prompt": {
+        "label": "Zertifizierungen",
+        "description": "Offizielle Zertifizierungen oder Qualitätssiegel (z. B. ISO, TÜV)."
+      },
+      "system": {
+        "path": "schema:hasCertification",
+        "uri": "https://schema.org/hasCertification",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:department",
       "group": "org",
       "prompt": {
-        "label": "Abteilung(en)",
-        "description": "Benannte Abteilungen (z. B. Fakultäten, Bereiche)."
+        "label": "Abteilungen",
+        "description": "Interne Abteilungen oder Bereiche."
       },
       "system": {
         "path": "schema:department",
-        "uri": "schema:department",
+        "uri": "https://schema.org/department",
         "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:sponsor",
+      "group": "org",
+      "prompt": {
+        "label": "Trägerschaft / Förderer",
+        "description": "Organisationen oder Personen, die die Einrichtung tragen oder fördern."
+      },
+      "system": {
+        "path": "schema:sponsor",
+        "uri": "https://schema.org/sponsor",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "object",
+          "shape": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
+      "id": "schema:memberOf",
+      "group": "org",
+      "prompt": {
+        "label": "Mitglied in",
+        "description": "Andere Organisationen/Netzwerke, in denen Mitgliedschaften bestehen."
+      },
+      "system": {
+        "path": "schema:memberOf",
+        "uri": "https://schema.org/memberOf",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:alumni",
       "group": "org",
       "prompt": {
-        "label": "Alumni (nur Bildungsorganisationen)",
-        "description": "Bekannte Alumni (Namen oder URIs)."
+        "label": "Alumni",
+        "description": "Ehemalige, die besonders erwähnt werden sollen."
       },
       "system": {
         "path": "schema:alumni",
-        "uri": "schema:alumni",
+        "uri": "https://schema.org/alumni",
         "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:taxID",
-      "group": "ids",
-      "prompt": {
-        "label": "Steuer-ID",
-        "description": "Nationale Steuer-/Fiscal-ID."
-      },
-      "system": {
-        "path": "schema:taxID",
-        "uri": "schema:taxID",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:vatID",
-      "group": "ids",
-      "prompt": {
-        "label": "USt-IdNr./VAT ID",
-        "description": "Umsatzsteuer-Identifikationsnummer."
-      },
-      "system": {
-        "path": "schema:vatID",
-        "uri": "schema:vatID",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:leiCode",
-      "group": "ids",
-      "prompt": {
-        "label": "LEI-Code",
-        "description": "Legal Entity Identifier (ISO 17442)."
-      },
-      "system": {
-        "path": "schema:leiCode",
-        "uri": "schema:leiCode",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:duns",
-      "group": "ids",
-      "prompt": {
-        "label": "DUNS",
-        "description": "Dun & Bradstreet D-U-N-S® Number."
-      },
-      "system": {
-        "path": "schema:duns",
-        "uri": "schema:duns",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:iso6523Code",
-      "group": "ids",
-      "prompt": {
-        "label": "ISO 6523 Code",
-        "description": "Organisation Identifier nach ISO-6523."
-      },
-      "system": {
-        "path": "schema:iso6523Code",
-        "uri": "schema:iso6523Code",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:naics",
-      "group": "ids",
-      "prompt": {
-        "label": "NAICS",
-        "description": "NAICS-Code (falls relevant)."
-      },
-      "system": {
-        "path": "schema:naics",
-        "uri": "schema:naics",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
-      }
-    },
-    {
-      "id": "schema:isicV4",
-      "group": "ids",
-      "prompt": {
-        "label": "ISIC Rev.4",
-        "description": "ISIC-Code (wirtschaftliche Tätigkeit)."
-      },
-      "system": {
-        "path": "schema:isicV4",
-        "uri": "schema:isicV4",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true
+        "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
       }
     },
     {
       "id": "schema:areaServed",
       "group": "service",
       "prompt": {
-        "label": "Versorgungs-/Einzugsgebiet",
-        "description": "Geografische Abdeckung (Namen/URIs/Text)."
+        "label": "Region(en)",
+        "description": "Region(en) oder Gebiet(e), die die Organisation bedient."
       },
       "system": {
         "path": "schema:areaServed",
-        "uri": "schema:areaServed",
+        "uri": "https://schema.org/areaServed",
         "datatype": "array",
         "multiple": true,
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
+        "items": {
+          "type": "string"
+        },
         "normalization": {
           "trim": true,
           "deduplicate": true
         }
       }
     }
-  ]
+  ],
+  "output_template": {
+    "@type": [
+      "schema:Organization"
+    ],
+    "schema:name": "",
+    "schema:legalName": "",
+    "schema:alternateName": [],
+    "schema:description": "",
+    "schema:url": "",
+    "schema:sameAs": [],
+    "schema:logo": "",
+    "schema:additionalType": [],
+    "oeh:locationType": [],
+    "oeh:isNonprofit": null,
+    "oeh:isLearningPlace": null,
+    "oeh:officiallyRecognized": null,
+    "schema:email": "",
+    "schema:telephone": "",
+    "schema:faxNumber": "",
+    "schema:contactPoint": [],
+    "schema:address": {
+      "streetAddress": "",
+      "postalCode": "",
+      "addressLocality": "",
+      "addressRegion": "",
+      "addressCountry": ""
+    },
+    "schema:legalAddress": {
+      "streetAddress": "",
+      "postalCode": "",
+      "addressLocality": "",
+      "addressRegion": "",
+      "addressCountry": ""
+    },
+    "schema:location": [],
+    "schema:directions": "",
+    "schema:geo": {
+      "latitude": null,
+      "longitude": null
+    },
+    "oeh:transportAccess": {
+      "publicTransport": "",
+      "car": "",
+      "parking": "",
+      "notes": ""
+    },
+    "schema:hasMap": "",
+    "schema:openingHours": [],
+    "schema:openingHoursSpecification": [],
+    "schema:publicAccess": null,
+    "schema:isAccessibleForFree": null,
+    "schema:amenityFeature": [],
+    "schema:accessibilitySummary": "",
+    "schema:accessibilitySupport": [],
+    "schema:offers": [],
+    "schema:tourBookingPage": "",
+    "schema:maximumAttendeeCapacity": null,
+    "schema:video": [],
+    "schema:foundingDate": "",
+    "schema:founder": [],
+    "schema:parentOrganization": "",
+    "schema:subOrganization": [],
+    "schema:branchCode": "",
+    "schema:department": [],
+    "schema:sponsor": [],
+    "schema:award": [],
+    "schema:hasCertification": [],
+    "schema:memberOf": [],
+    "schema:alumni": [],
+    "schema:areaServed": []
+  }
 }
