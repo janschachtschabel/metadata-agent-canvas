@@ -226,27 +226,13 @@ export class CanvasService {
    */
   private async detectContentType(userText: string): Promise<void> {
     try {
-      const concepts = this.schemaLoader.getContentTypeConcepts()
-        .filter(concept => !!concept.schema_file);
-
-      let schemaList: string;
-
-      if (concepts.length > 0) {
-        schemaList = concepts.map((concept, index) => {
-          const description = concept.description
-            ? ` – ${concept.description}`
-            : '';
-          return `${index + 1}. ${concept.label}${description}\n   Schema-Datei: ${concept.schema_file}`;
-        }).join('\n\n');
-      } else {
-        const availableSchemas = this.schemaLoader.getAvailableSpecialSchemas();
-        schemaList = availableSchemas.map((s: string, i: number) =>
-          `${i + 1}. ${this.schemaLoader.getContentTypeLabel(s)} (${s})`
-        ).join('\n');
-      }
+      const availableSchemas = this.schemaLoader.getAvailableSpecialSchemas();
+      const schemaList = availableSchemas.map((s: string, i: number) => 
+        `${i + 1}. ${this.schemaLoader.getContentTypeLabel(s)} (${s})`
+      ).join('\n');
 
       const prompt = 
-        `Analysiere folgenden Text und bestimme die passendste Inhaltsart. Nutze die Beschreibungen, um die programmatische Bedeutung zu verstehen.\n\n` +
+        `Analysiere folgenden Text und bestimme die passendste Inhaltsart.\n\n` +
         `Text: "${userText}"\n\n` +
         `Verfügbare Inhaltsarten:\n${schemaList}\n\n` +
         `Antworte NUR mit einem JSON-Objekt im Format:\n` +

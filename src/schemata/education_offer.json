@@ -1,62 +1,40 @@
 {
   "profileId": "oeh:educationalOffering",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "@context": {
     "schema": "https://schema.org/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "oeh": "http://w3id.org/openeduhub/vocabs/"
   },
-  "groups": [
-    {
-      "id": "classification",
-      "label": "Klassifikation"
+  "output_template": {
+    "oeh:educationalOffering": [],
+    "schema:programType": [],
+    "schema:educationalProgramMode": [],
+    "schema:applicationStartDate": "",
+    "schema:applicationDeadline": "",
+    "schema:startDate": "",
+    "schema:endDate": "",
+    "schema:timeToComplete": "",
+    "schema:termDuration": "",
+    "schema:termsPerYear": null,
+    "schema:numberOfCredits": null,
+    "schema:typicalCreditsPerTerm": null,
+    "schema:maximumEnrollment": null,
+    "schema:programPrerequisites": [],
+    "schema:educationalCredentialAwarded": [],
+    "schema:occupationalCredentialAwarded": [],
+    "schema:financialAidEligible": [],
+    "schema:hasCourse": [],
+    "schema:provider": {
+      "name": "",
+      "url": ""
     },
-    {
-      "id": "program",
-      "label": "Programmdetails"
-    },
-    {
-      "id": "schedule",
-      "label": "Terminplan"
-    },
-    {
-      "id": "workload",
-      "label": "Workload & Dauer"
-    },
-    {
-      "id": "credits",
-      "label": "Credits & Umfang"
-    },
-    {
-      "id": "admissions",
-      "label": "Zugang & Bewerbung"
-    },
-    {
-      "id": "outcomes",
-      "label": "Abschlüsse & Outcomes"
-    },
-    {
-      "id": "fees",
-      "label": "Kosten & Förderung"
-    },
-    {
-      "id": "courses",
-      "label": "Kurse & Module"
-    },
-    {
-      "id": "provider",
-      "label": "Anbieter"
-    },
-    {
-      "id": "pricing",
-      "label": "Preise & Angebote"
-    }
-  ],
+    "schema:offers": []
+  },
   "fields": [
     {
       "id": "oeh:educationalOffering",
       "group": "classification",
-      "group_label": "Klassifikation",
       "prompt": {
         "label": "Bildungsangebot-Typ",
         "description": "Wähle(n) Sie den zutreffenden Typ/Form des Bildungsangebots.",
@@ -368,6 +346,26 @@
               "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/youth-tutoring"
             },
             {
+              "label": "Lernförderung (Jugend)",
+              "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/learning-support-youth"
+            },
+            {
+              "label": "Begabtenförderung",
+              "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/gifted-education"
+            },
+            {
+              "label": "Ferienakademie",
+              "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/vacation-academy"
+            },
+            {
+              "label": "Jugendbildung (Organisation)",
+              "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/youth-organization"
+            },
+            {
+              "label": "Jugendverbandsarbeit",
+              "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/youth-association-work"
+            },
+            {
               "label": "Demokratiebildung",
               "uri": "http://w3id.org/openeduhub/vocabs/educationalOffering/democracy-education"
             },
@@ -389,180 +387,8 @@
       }
     },
     {
-      "id": "oeh:concretenessType",
-      "group": "classification",
-      "group_label": "Klassifikation",
-      "prompt": {
-        "label": "Konkretheitsgrad",
-        "description": "Handelt es sich um eine allgemeine Programmbeschreibung oder einen konkreten Termin?",
-        "examples": [
-          "Allgemeine Programmbeschreibung",
-          "Konkretes Angebotstermin"
-        ]
-      },
-      "system": {
-        "path": "oeh:concretenessType",
-        "uri": "oeh:concretenessType",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "vocabulary": {
-          "type": "closed",
-          "concepts": [
-            {
-              "label": "Allgemeine Programmbeschreibung",
-              "uri": "http://w3id.org/openeduhub/vocabs/concretenessType/general"
-            },
-            {
-              "label": "Konkretes Angebot",
-              "uri": "http://w3id.org/openeduhub/vocabs/concretenessType/concrete"
-            }
-          ]
-        },
-        "normalization": {
-          "trim": true
-        }
-      }
-    },
-    {
-      "id": "oeh:granularityLevel",
-      "group": "classification",
-      "group_label": "Klassifikation",
-      "prompt": {
-        "label": "Granularität",
-        "description": "Ebene der Bildungsbeschreibung (z. B. Bildungsgang, Modul, Kurs, Einheit).",
-        "examples": [
-          "Bildungsgang",
-          "Modul",
-          "Kurs"
-        ]
-      },
-      "system": {
-        "path": "oeh:granularityLevel",
-        "uri": "oeh:granularityLevel",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "vocabulary": {
-          "type": "closed",
-          "concepts": [
-            {
-              "label": "Bildungsgang",
-              "uri": "http://w3id.org/openeduhub/vocabs/granularityLevel/program"
-            },
-            {
-              "label": "Modul",
-              "uri": "http://w3id.org/openeduhub/vocabs/granularityLevel/module"
-            },
-            {
-              "label": "Kurs",
-              "uri": "http://w3id.org/openeduhub/vocabs/granularityLevel/course"
-            },
-            {
-              "label": "Einheit",
-              "uri": "http://w3id.org/openeduhub/vocabs/granularityLevel/unit"
-            }
-          ]
-        },
-        "normalization": {
-          "trim": true
-        }
-      }
-    },
-    {
-      "id": "oeh:recurrencePattern",
-      "group": "schedule",
-      "group_label": "Terminplan",
-      "prompt": {
-        "label": "Wiederholungsart",
-        "description": "Gibt an, ob das Angebot als Serie, Block oder Einzeltermin durchgeführt wird.",
-        "examples": [
-          "Serie",
-          "Block",
-          "Einzel"
-        ]
-      },
-      "system": {
-        "path": "oeh:recurrencePattern",
-        "uri": "oeh:recurrencePattern",
-        "datatype": "string",
-        "multiple": false,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "vocabulary": {
-          "type": "closed",
-          "concepts": [
-            {
-              "label": "Serie",
-              "uri": "http://w3id.org/openeduhub/vocabs/recurrencePattern/series"
-            },
-            {
-              "label": "Block",
-              "uri": "http://w3id.org/openeduhub/vocabs/recurrencePattern/block"
-            },
-            {
-              "label": "Einzel",
-              "uri": "http://w3id.org/openeduhub/vocabs/recurrencePattern/single"
-            }
-          ]
-        },
-        "normalization": {
-          "trim": true
-        }
-      }
-    },
-    {
-      "id": "schema:availableLanguage",
-      "group": "program",
-      "group_label": "Programmdetails",
-      "prompt": {
-        "label": "Verfügbare Sprachen",
-        "description": "In welchen Sprachen wird das Angebot durchgeführt? Nutzen Sie Sprachcodes oder Bezeichnungen.",
-        "examples": [
-          "de",
-          "en",
-          "Deutsch",
-          "English"
-        ]
-      },
-      "system": {
-        "path": "schema:availableLanguage",
-        "uri": "https://schema.org/availableLanguage",
-        "datatype": "array",
-        "multiple": true,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "items": {
-          "type": "string"
-        },
-        "normalization": {
-          "trim": true,
-          "deduplicate": true
-        }
-      }
-    },
-    {
       "id": "schema:programType",
       "group": "program",
-      "group_label": "Programmdetails",
       "prompt": {
         "label": "Programm-Typ (frei oder kontrolliertes Vokabular)",
         "description": "Art des Programms (z. B. Präsenz, Praktikum, dual, berufsbegleitend).",
@@ -592,108 +418,8 @@
       }
     },
     {
-      "id": "schema:credentialCategory",
-      "group": "outcomes",
-      "group_label": "Abschlüsse & Outcomes",
-      "prompt": {
-        "label": "Art des Abschlusses (Kategorie)",
-        "description": "Kategorie des Abschlusses, z. B. Bachelor, Master, Zertifikat.",
-        "examples": [
-          "Bachelor",
-          "Master",
-          "Zertifikat"
-        ]
-      },
-      "system": {
-        "path": "schema:credentialCategory",
-        "uri": "https://schema.org/credentialCategory",
-        "datatype": "array",
-        "multiple": true,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "items": {
-          "type": "string"
-        },
-        "normalization": {
-          "trim": true,
-          "deduplicate": true
-        }
-      }
-    },
-    {
-      "id": "schema:educationalLevel",
-      "group": "outcomes",
-      "group_label": "Abschlüsse & Outcomes",
-      "prompt": {
-        "label": "Bildungsstufe",
-        "description": "Bildungsstufe oder Niveau des Angebots (z. B. EQF, Beginner, Fortgeschritten).",
-        "examples": [
-          "EQF 6",
-          "Beginner",
-          "Fortgeschritten"
-        ]
-      },
-      "system": {
-        "path": "schema:educationalLevel",
-        "uri": "https://schema.org/educationalLevel",
-        "datatype": "array",
-        "multiple": true,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "items": {
-          "type": "string"
-        },
-        "normalization": {
-          "trim": true,
-          "deduplicate": true
-        }
-      }
-    },
-    {
-      "id": "schema:occupationalCategory",
-      "group": "outcomes",
-      "group_label": "Abschlüsse & Outcomes",
-      "prompt": {
-        "label": "Berufskategorie",
-        "description": "Relevante Berufskategorien oder Codes (z. B. ESCO, O*NET).",
-        "examples": [
-          "ESCO: 3512",
-          "O*NET: 15-1252.00",
-          "IT-Consulting"
-        ]
-      },
-      "system": {
-        "path": "schema:occupationalCategory",
-        "uri": "https://schema.org/occupationalCategory",
-        "datatype": "array",
-        "multiple": true,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "index": {
-          "keyword": true
-        },
-        "items": {
-          "type": "string"
-        },
-        "normalization": {
-          "trim": true,
-          "deduplicate": true
-        }
-      }
-    },
-    {
       "id": "schema:educationalProgramMode",
       "group": "program",
-      "group_label": "Programmdetails",
       "prompt": {
         "label": "Programmmodus",
         "description": "Medium/Modus des Programms (online, onsite, blended; synchron/asynchron; Voll-/Teilzeit).",
@@ -726,7 +452,6 @@
     {
       "id": "schema:applicationStartDate",
       "group": "admissions",
-      "group_label": "Zugang & Bewerbung",
       "prompt": {
         "label": "Bewerbungsstart",
         "description": "Datum, ab dem Bewerbungen entgegengenommen werden (ISO 8601).",
@@ -753,7 +478,6 @@
     {
       "id": "schema:applicationDeadline",
       "group": "admissions",
-      "group_label": "Zugang & Bewerbung",
       "prompt": {
         "label": "Bewerbungsschluss",
         "description": "Datum (ISO 8601) oder Freitext für flexible Fristen (z. B. 'Rolling Admission').",
@@ -778,7 +502,6 @@
     {
       "id": "schema:startDate",
       "group": "schedule",
-      "group_label": "Terminplan",
       "prompt": {
         "label": "Programmstart",
         "description": "Startdatum des Programms (ISO 8601).",
@@ -805,7 +528,6 @@
     {
       "id": "schema:endDate",
       "group": "schedule",
-      "group_label": "Terminplan",
       "prompt": {
         "label": "Programmende",
         "description": "Enddatum des Programms (ISO 8601).",
@@ -832,7 +554,6 @@
     {
       "id": "schema:timeToComplete",
       "group": "workload",
-      "group_label": "Workload & Dauer",
       "prompt": {
         "label": "Regelstudienzeit / Dauer",
         "description": "Erwartete Gesamtdauer bis Abschluss (ISO 8601 Duration).",
@@ -860,7 +581,6 @@
     {
       "id": "schema:termDuration",
       "group": "workload",
-      "group_label": "Workload & Dauer",
       "prompt": {
         "label": "Dauer einer Studienperiode",
         "description": "Dauer einer Periode (Semester/Quartal) als ISO 8601 Duration.",
@@ -888,7 +608,6 @@
     {
       "id": "schema:termsPerYear",
       "group": "workload",
-      "group_label": "Workload & Dauer",
       "prompt": {
         "label": "Perioden pro Jahr",
         "description": "Anzahl an Studienperioden pro Jahr (z. B. 2 Semester).",
@@ -911,7 +630,6 @@
     {
       "id": "schema:numberOfCredits",
       "group": "credits",
-      "group_label": "Credits & Umfang",
       "prompt": {
         "label": "Gesamt-Credits",
         "description": "Anzahl der Credits/Leistungspunkte für das Programm (Integer).",
@@ -934,7 +652,6 @@
     {
       "id": "schema:typicalCreditsPerTerm",
       "group": "credits",
-      "group_label": "Credits & Umfang",
       "prompt": {
         "label": "Credits pro Periode (Vollzeit)",
         "description": "Typische Credits je Studienperiode für Vollzeit.",
@@ -955,7 +672,6 @@
     {
       "id": "schema:maximumEnrollment",
       "group": "admissions",
-      "group_label": "Zugang & Bewerbung",
       "prompt": {
         "label": "Maximale Kohortengröße",
         "description": "Maximale Anzahl Studierender im Programm.",
@@ -976,7 +692,6 @@
     {
       "id": "schema:programPrerequisites",
       "group": "admissions",
-      "group_label": "Zugang & Bewerbung",
       "prompt": {
         "label": "Zugangsvoraussetzungen",
         "description": "Freitext oder knappe Aufzählung der Voraussetzungen (z. B. Abitur, B2 Deutsch, Vorpraktikum).",
@@ -1006,7 +721,6 @@
     {
       "id": "schema:educationalCredentialAwarded",
       "group": "outcomes",
-      "group_label": "Abschlüsse & Outcomes",
       "prompt": {
         "label": "Verliehener Bildungsabschluss",
         "description": "Bezeichnung des Abschlusses/Zertifikats (Text oder URL).",
@@ -1035,9 +749,37 @@
       }
     },
     {
+      "id": "schema:occupationalCredentialAwarded",
+      "group": "outcomes",
+      "prompt": {
+        "label": "Berufs-/Fachzertifikat",
+        "description": "Verliehenes berufliches Zertifikat (Text oder URL).",
+        "examples": [
+          "Pflegefachkraft",
+          "CCNA",
+          "Meister im Handwerk"
+        ]
+      },
+      "system": {
+        "path": "schema:occupationalCredentialAwarded",
+        "uri": "schema:occupationalCredentialAwarded",
+        "datatype": "array",
+        "multiple": true,
+        "required": false,
+        "ask_user": true,
+        "ai_fillable": true,
+        "index": {
+          "keyword": true
+        },
+        "normalization": {
+          "trim": true,
+          "deduplicate": true
+        }
+      }
+    },
+    {
       "id": "schema:financialAidEligible",
       "group": "fees",
-      "group_label": "Kosten & Förderung",
       "prompt": {
         "label": "Förder-/Finanzierungsmöglichkeiten",
         "description": "Mögliche Förderungen oder Stipendien (Text).",
@@ -1067,7 +809,6 @@
     {
       "id": "schema:hasCourse",
       "group": "courses",
-      "group_label": "Kurse & Module",
       "prompt": {
         "label": "Kurse im Programm",
         "description": "Liste von Kursen, die das Programm konstituieren (Kurzform).",
@@ -1116,7 +857,6 @@
     {
       "id": "schema:provider",
       "group": "provider",
-      "group_label": "Anbieter",
       "prompt": {
         "label": "Anbieter",
         "description": "Organisation oder Person, die das Programm anbietet.",
@@ -1135,6 +875,17 @@
         "required": false,
         "ask_user": true,
         "ai_fillable": true,
+        "items": {
+          "type": "object",
+          "shape": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        },
         "index": {
           "keyword": true
         },
@@ -1144,85 +895,8 @@
       }
     },
     {
-      "id": "schema:location",
-      "group": "program",
-      "group_label": "Programmdetails",
-      "prompt": {
-        "label": "Ort / virtuelle Teilnahme",
-        "description": "Physische Orte oder virtuelle Zugangspunkte des Bildungsangebots.",
-        "examples": [
-          {
-            "name": "Campus Innenstadt",
-            "address": {
-              "streetAddress": "Musterstraße 1",
-              "postalCode": "12345",
-              "addressLocality": "Musterstadt",
-              "addressCountry": "DE"
-            },
-            "geo": {
-              "latitude": 52.520008,
-              "longitude": 13.404954
-            }
-          },
-          {
-            "@type": "VirtualLocation",
-            "url": "https://example.org/room/123"
-          }
-        ]
-      },
-      "system": {
-        "path": "schema:location",
-        "uri": "https://schema.org/location",
-        "datatype": "array",
-        "multiple": true,
-        "required": false,
-        "ask_user": true,
-        "ai_fillable": true,
-        "items": {
-          "type": "object",
-          "shape": {
-            "oneOf": [
-              {
-                "@type": "Place",
-                "name": "string",
-                "sameAs": "uri",
-                "address": {
-                  "streetAddress": "string",
-                  "postalCode": "string",
-                  "addressLocality": "string",
-                  "addressRegion": "string",
-                  "addressCountry": "string"
-                },
-                "geo": {
-                  "latitude": "number",
-                  "longitude": "number"
-                }
-              },
-              {
-                "@type": "VirtualLocation",
-                "url": "uri"
-              },
-              {
-                "@type": "PostalAddress",
-                "streetAddress": "string",
-                "postalCode": "string",
-                "addressLocality": "string",
-                "addressRegion": "string",
-                "addressCountry": "string"
-              }
-            ]
-          }
-        },
-        "normalization": {
-          "trim": true,
-          "deduplicate": true
-        }
-      }
-    },
-    {
       "id": "schema:offers",
       "group": "pricing",
-      "group_label": "Preise & Angebote",
       "prompt": {
         "label": "Preise/Angebote",
         "description": "Optionale Angebots-/Preisinfos für das Programm.",
@@ -1265,42 +939,5 @@
         }
       }
     }
-  ],
-  "output_template": {
-    "@type": [
-      "schema:Course",
-      "schema:EducationalOccupationalProgram"
-    ],
-    "oeh:educationalOffering": [],
-    "oeh:concretenessType": "",
-    "oeh:granularityLevel": "",
-    "oeh:recurrencePattern": "",
-    "schema:programType": [],
-    "schema:educationalProgramMode": [],
-    "schema:availableLanguage": [],
-    "schema:applicationStartDate": "",
-    "schema:applicationDeadline": "",
-    "schema:startDate": "",
-    "schema:endDate": "",
-    "schema:timeToComplete": "",
-    "schema:termDuration": "",
-    "schema:termsPerYear": null,
-    "schema:numberOfCredits": null,
-    "schema:typicalCreditsPerTerm": null,
-    "schema:maximumEnrollment": null,
-    "schema:programPrerequisites": [],
-    "schema:educationalCredentialAwarded": [],
-    "schema:occupationalCredentialAwarded": [],
-    "schema:credentialCategory": [],
-    "schema:educationalLevel": [],
-    "schema:occupationalCategory": [],
-    "schema:financialAidEligible": [],
-    "schema:hasCourse": [],
-    "schema:location": [],
-    "schema:provider": {
-      "name": "",
-      "url": ""
-    },
-    "schema:offers": []
-  }
+  ]
 }
