@@ -2,9 +2,12 @@ export const environment = {
   production: true,
   
   // OpenAI Configuration
+  // NOTE: In production, API Key is NOT stored in code for security
+  // The Netlify Function proxy handles authentication server-side
   openai: {
     apiKey: '', // Injected from environment variable
     baseUrl: '', // Optional: Custom OpenAI-compatible endpoint
+    proxyUrl: '', // Optional: Custom proxy URL (leave empty to use /.netlify/functions/openai-proxy)
     model: 'gpt-4.1-mini', // Injected from environment variable
     temperature: 0.3,
     

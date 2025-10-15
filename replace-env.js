@@ -45,6 +45,14 @@ const envProdTemplate = `export const environment = {
 `;
 
 /**
+ * Check if file already has an API key
+ */
+function hasExistingApiKey(content) {
+  const apiKeyMatch = content.match(/apiKey:\s*['"](sk-[^'"]+)['"]/);  
+  return apiKeyMatch && apiKeyMatch[1] && apiKeyMatch[1].length > 10;
+}
+
+/**
  * Process an environment file
  */
 function processEnvFile(filePath, fileName) {
@@ -56,6 +64,14 @@ function processEnvFile(filePath, fileName) {
   console.log(`\n📝 Processing ${fileName}...`);
   let content = fs.readFileSync(filePath, 'utf8');
   let modified = false;
+  
+  // Check if file already has an API key
+  const hasKey = hasExistingApiKey(content);
+  if (hasKey) {
+    console.log(`  ℹ️  File already contains an API key, skipping injection`);
+    console.log(`  💡 To inject from environment variables, remove the existing key first`);
+    return;
+  }
 
   // Replace API Key
   if (apiKey) {
@@ -149,4 +165,7 @@ if (!apiKey) {
   console.log('\n⚠️  Warning: OPENAI_API_KEY not found in environment variables');
   console.log('💡 Set it with: set OPENAI_API_KEY=sk-your-key-here (Windows)');
   console.log('💡 Or edit the environment files directly');
+} else {
+  console.log('\n💡 Note: Existing API keys in files are preserved');
+  console.log('💡 To use environment variables, ensure apiKey is empty in the file');
 }

@@ -5,6 +5,7 @@ export const environment = {
   openai: {
     apiKey: '', // Injected from environment variable
     baseUrl: '', // Optional: Custom OpenAI-compatible endpoint (leave empty for default)
+    proxyUrl: '', // Optional: Custom proxy URL (leave empty to use /.netlify/functions/openai-proxy)
     model: 'gpt-4.1-mini', // Injected from environment variable
     temperature: 0.3,
     

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ChatOpenAI } from '@langchain/openai';
 import { CanvasFieldState, ExtractionResult, FieldExtractionTask } from '../models/canvas-models';
 import { environment } from '../../environments/environment';
+import { OpenAIProxyService } from './openai-proxy.service';
 
 interface WorkerTask {
   task: FieldExtractionTask;
@@ -16,37 +16,8 @@ export class FieldExtractionWorkerPoolService {
   private maxWorkers = 10;
   private activeWorkers = 0;
   private queue: WorkerTask[] = [];
-  private llm: ChatOpenAI;
 
-  constructor() {
-    // Initialize LLM with environment settings
-    const config: any = {
-      model: environment.openai.model,
-      temperature: environment.openai.temperature,
-      apiKey: environment.openai.apiKey,
-      timeout: environment.canvas.timeout
-    };
-
-    // Add baseUrl if configured
-    if (environment.openai.baseUrl) {
-      config.configuration = {
-        baseURL: environment.openai.baseUrl
-      };
-    }
-
-    // Add GPT-5 specific settings if model starts with 'gpt-5'
-    if (environment.openai.model.startsWith('gpt-5')) {
-      config.modelKwargs = {
-        reasoning_effort: environment.openai.gpt5.reasoningEffort,
-        response_format: {
-          type: 'text',
-          verbosity: environment.openai.gpt5.verbosity
-        }
-      };
-    }
-
-    this.llm = new ChatOpenAI(config);
-    
+  constructor(private openaiProxy: OpenAIProxyService) {
     // Set max workers from environment
     this.maxWorkers = environment.canvas.maxWorkers;
   }
@@ -115,12 +86,12 @@ export class FieldExtractionWorkerPoolService {
 
       console.log(`🔍 Extracting field: ${field.label} (${field.fieldId})`);
 
-      // Call LLM
-      const response = await this.llm.invoke([
+      // Call OpenAI via proxy
+      const response = await this.openaiProxy.invoke([
         { role: 'user', content: prompt }
       ]);
 
-      const content = response.content.toString().trim();
+      const content = response.choices[0].message.content.trim();
       console.log(`📝 LLM Response for ${field.label}: "${content}"`);
 
       // Parse JSON response

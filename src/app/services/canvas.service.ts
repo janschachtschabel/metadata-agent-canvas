@@ -4,7 +4,7 @@ import { CanvasState, CanvasFieldState, FieldStatus, FieldGroup, FieldExtraction
 import { SchemaLoaderService } from './schema-loader.service';
 import { FieldExtractionWorkerPoolService } from './field-extraction-worker-pool.service';
 import { FieldNormalizerService } from './field-normalizer.service';
-import { ChatOpenAI } from '@langchain/openai';
+import { OpenAIProxyService } from './openai-proxy.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -14,41 +14,12 @@ export class CanvasService {
   private stateSubject = new BehaviorSubject<CanvasState>(this.getInitialState());
   public state$: Observable<CanvasState> = this.stateSubject.asObservable();
 
-  private llm: ChatOpenAI;
-
   constructor(
     private schemaLoader: SchemaLoaderService,
     private workerPool: FieldExtractionWorkerPoolService,
-    private fieldNormalizer: FieldNormalizerService
+    private fieldNormalizer: FieldNormalizerService,
+    private openaiProxy: OpenAIProxyService
   ) {
-    // Initialize LLM with environment settings
-    const config: any = {
-      model: environment.openai.model,
-      temperature: environment.openai.temperature,
-      apiKey: environment.openai.apiKey,
-      timeout: environment.canvas.timeout
-    };
-
-    // Add baseUrl if configured
-    if (environment.openai.baseUrl) {
-      config.configuration = {
-        baseURL: environment.openai.baseUrl
-      };
-    }
-
-    // Add GPT-5 specific settings if model starts with 'gpt-5'
-    if (environment.openai.model.startsWith('gpt-5')) {
-      config.modelKwargs = {
-        reasoning_effort: environment.openai.gpt5.reasoningEffort,
-        response_format: {
-          type: 'text',
-          verbosity: environment.openai.gpt5.verbosity
-        }
-      };
-    }
-
-    this.llm = new ChatOpenAI(config);
-    
     // Configure worker pool
     this.workerPool.setMaxWorkers(environment.canvas.maxWorkers);
   }
@@ -226,13 +197,27 @@ export class CanvasService {
    */
   private async detectContentType(userText: string): Promise<void> {
     try {
-      const availableSchemas = this.schemaLoader.getAvailableSpecialSchemas();
-      const schemaList = availableSchemas.map((s: string, i: number) => 
-        `${i + 1}. ${this.schemaLoader.getContentTypeLabel(s)} (${s})`
-      ).join('\n');
+      const concepts = this.schemaLoader.getContentTypeConcepts()
+        .filter(concept => !!concept.schema_file);
+
+      let schemaList: string;
+
+      if (concepts.length > 0) {
+        schemaList = concepts.map((concept, index) => {
+          const description = concept.description
+            ? ` – ${concept.description}`
+            : '';
+          return `${index + 1}. ${concept.label}${description}\n   Schema-Datei: ${concept.schema_file}`;
+        }).join('\n\n');
+      } else {
+        const availableSchemas = this.schemaLoader.getAvailableSpecialSchemas();
+        schemaList = availableSchemas.map((s: string, i: number) =>
+          `${i + 1}. ${this.schemaLoader.getContentTypeLabel(s)} (${s})`
+        ).join('\n');
+      }
 
       const prompt = 
-        `Analysiere folgenden Text und bestimme die passendste Inhaltsart.\n\n` +
+        `Analysiere folgenden Text und bestimme die passendste Inhaltsart. Nutze die Beschreibungen, um die programmatische Bedeutung zu verstehen.\n\n` +
         `Text: "${userText}"\n\n` +
         `Verfügbare Inhaltsarten:\n${schemaList}\n\n` +
         `Antworte NUR mit einem JSON-Objekt im Format:\n` +
@@ -240,11 +225,11 @@ export class CanvasService {
         `Beispiel: {"schema": "event.json", "confidence": 0.92}\n` +
         `Wenn keine passt: {"schema": "none", "confidence": 0.0}`;
 
-      const response = await this.llm.invoke([
+      const response = await this.openaiProxy.invoke([
         { role: 'user', content: prompt }
       ]);
 
-      const content = response.content.toString().trim();
+      const content = response.choices[0].message.content.trim();
       const jsonMatch = content.match(/\{[^}]+\}/);
       
       if (jsonMatch) {

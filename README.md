@@ -4,60 +4,391 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 
 ## 🎯 Features
 
-- ⚡ **Schnell**: Parallele Feld-Extraktion (6-10s)
+- ⚡ **Schnell**: Parallele Feld-Extraktion (6-10s statt 40-50s)
 - 🎨 **Canvas-UI**: Alle Felder gleichzeitig sichtbar und bearbeitbar
 - 📊 **Live-Updates**: Echtzeit-Streaming während der Extraktion
 - ✏️ **Inline-Editing**: Direkte Feldbearbeitung mit Autocomplete
 - 🔄 **Automatische Normalisierung**: Datumsformate, URLs, Vokabulare
 - 🎓 **Content-Type-Erkennung**: Automatische Schema-Auswahl (Event, Kurs, etc.)
 - ✅ **Validierung**: Pflichtfelder, Vokabulare, Datentypen
+- 🔒 **Sicher**: API-Key wird nie im Code gespeichert (Production)
 
 ---
 
-## 📦 Installation
+## ⚡ Schnellstart (TL;DR)
 
-### Voraussetzungen
-
-- Node.js (>= 18.x)
-- npm (>= 9.x)
-- OpenAI API-Key (oder OpenAI-kompatibler Endpoint)
-
-### Setup
-
+### 1. Repository klonen
 ```bash
-# Repository klonen
-git clone <repository-url>
-cd webkomponente-canvas
-
-# Dependencies installieren
-npm install
-
-# Development-Server starten
-npm start
+git clone https://github.com/janschachtschabel/metadata-agent-canvas.git
+cd metadata-agent-canvas/webkomponente-canvas
 ```
 
-Die Anwendung läuft unter: **http://localhost:4200/**
+### 2. Dependencies installieren
+```bash
+npm install
+```
 
----
+### 3. API-Key konfigurieren
 
-## 🚀 Start & Nutzung
+**Option A: Direkt in Datei (empfohlen für lokale Entwicklung)**
 
-### 1. API-Key konfigurieren
-
-Beim ersten Start werden Sie nach dem OpenAI API-Key gefragt. Alternativ in `src/environments/environment.ts` konfigurieren:
+Öffnen Sie `src/environments/environment.ts` und fügen Sie Ihren OpenAI API-Key ein:
 
 ```typescript
 export const environment = {
   production: false,
   openai: {
-    apiKey: '',                    // Leer lassen → Key wird im UI abgefragt
-    model: 'gpt-4.1-mini',         // Empfohlen für beste Preis/Leistung
-    baseUrl: '',                   // Optional: eigener Endpoint
+    apiKey: 'sk-proj-...', // 👈 Ihren API-Key hier eintragen
+    model: 'gpt-4.1-mini',
+    // ...
   }
 };
 ```
 
-### 2. Workflow
+**Option B: Als Environment Variable**
+
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY="sk-proj-..."
+```
+
+**Windows (CMD):**
+```cmd
+set OPENAI_API_KEY=sk-proj-...
+```
+
+**Linux/Mac:**
+```bash
+export OPENAI_API_KEY=sk-proj-...
+```
+
+**Hinweis:** Environment Variables gelten nur für die aktuelle Session. Für permanente Konfiguration nutzen Sie Option A.
+
+### 4. Lokale Entwicklung starten
+
+**WICHTIG: API-Key für Proxy setzen (im selben Terminal):**
+
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY="sk-proj-..."
+```
+
+**Windows (CMD):**
+```cmd
+set OPENAI_API_KEY=sk-proj-...
+```
+
+**Linux/Mac:**
+```bash
+export OPENAI_API_KEY=sk-proj-...
+```
+
+**Terminal 1: Proxy starten**
+```bash
+npm run proxy
+```
+
+**Terminal 2: App starten**
+```bash
+npm start
+```
+
+### 5. Browser öffnen
+```
+http://localhost:4200
+```
+
+**Fertig!** Die App läuft lokal ohne CORS-Probleme. 🎉
+
+---
+
+### Für Production Build:
+
+```bash
+# Build erstellen
+npm run build
+
+# Output in dist/ Verzeichnis
+# Bereit für Deployment auf Netlify/Vercel
+```
+
+---
+
+## 📦 Installation & Setup (Detailliert)
+
+### Voraussetzungen
+
+**Software:**
+- **Node.js** >= 18.x ([Download](https://nodejs.org/))
+- **npm** >= 9.x (kommt mit Node.js)
+- **Git** ([Download](https://git-scm.com/))
+
+**API-Zugang:**
+- **OpenAI API-Key** ([Hier erstellen](https://platform.openai.com/api-keys))
+  - Oder OpenAI-kompatibler Endpoint (Azure OpenAI, etc.)
+
+**Prüfen Sie Ihre Installation:**
+```bash
+node --version    # Sollte v18.x oder höher sein
+npm --version     # Sollte 9.x oder höher sein
+git --version     # Sollte installiert sein
+```
+
+---
+
+### Schritt 1: Repository klonen
+
+```bash
+# HTTPS (empfohlen)
+git clone https://github.com/janschachtschabel/metadata-agent-canvas.git
+
+# Oder SSH
+git clone git@github.com:janschachtschabel/metadata-agent-canvas.git
+
+# In das Projektverzeichnis wechseln
+cd metadata-agent-canvas/webkomponente-canvas
+```
+
+---
+
+### Schritt 2: Dependencies installieren
+
+```bash
+npm install
+```
+
+**Das installiert:**
+- Angular 19
+- RxJS
+- Material Design
+- @langchain/openai (für LLM-Integration)
+- Weitere Dependencies (siehe `package.json`)
+
+**Dauer:** 2-5 Minuten (abhängig von Internetverbindung)
+
+**Bei Fehlern:**
+```bash
+# Cache leeren und neu installieren
+npm cache clean --force
+rm -rf node_modules package-lock.json  # Windows: rmdir /s node_modules & del package-lock.json
+npm install
+```
+
+---
+
+### Schritt 3: API-Key konfigurieren
+
+#### Option A: Direkt in environment.ts (Lokal)
+
+**Datei öffnen:** `src/environments/environment.ts`
+
+```typescript
+export const environment = {
+  production: false,
+  
+  openai: {
+    apiKey: 'sk-proj-...', // 👈 Ihren OpenAI API-Key hier eintragen
+    baseUrl: '',           // Optional: Custom Endpoint (z.B. Azure)
+    proxyUrl: '',          // Leer lassen (nutzt automatisch localhost:3001)
+    model: 'gpt-4.1-mini',  // Empfohlen: Schnell & günstig
+    temperature: 0.3,
+    
+    gpt5: {
+      reasoningEffort: 'medium',
+      verbosity: 'low'
+    }
+  },
+  
+  canvas: {
+    maxWorkers: 10,  // Parallele Extraktionen (5-20)
+    timeout: 30000   // Timeout pro Feld (ms)
+  }
+};
+```
+
+**Wichtig:** Diese Datei ist in `.gitignore` und wird **nicht** committet!
+
+#### Option B: Environment Variable (Optional)
+
+**Windows (PowerShell) - Empfohlen:**
+```powershell
+# Für aktuelle Session
+$env:OPENAI_API_KEY="sk-proj-..."
+
+# Oder permanent (System-weit):
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-proj-...', 'User')
+```
+
+**Windows (CMD):**
+```cmd
+# Für aktuelle Session
+set OPENAI_API_KEY=sk-proj-...
+
+# Oder permanent:
+setx OPENAI_API_KEY "sk-proj-..."
+```
+
+**Linux/Mac (Bash):**
+```bash
+# Für aktuelle Session
+export OPENAI_API_KEY=sk-proj-...
+
+# Oder permanent in ~/.bashrc oder ~/.zshrc:
+echo 'export OPENAI_API_KEY=sk-proj-...' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Vorteile:**
+- API-Key nicht in Dateien
+- Sicherer für geteilte Entwicklungsumgebungen
+- Funktioniert auf allen Betriebssystemen
+
+**Nachteile:**
+- Muss bei jeder Session neu gesetzt werden (außer bei permanenter Konfiguration)
+- Option A (Datei) ist einfacher für lokale Entwicklung
+
+---
+
+### Schritt 4: Lokale Entwicklung starten
+
+**Warum 2 Terminals?**
+- Die OpenAI API blockiert direkte Browser-Requests (CORS-Policy)
+- Lösung: Lokaler Proxy-Server der Requests weiterleitet
+
+#### Terminal 1: Proxy-Server starten
+
+```bash
+npm run proxy
+```
+
+**Erwartete Ausgabe:**
+```
+🚀 Starting local OpenAI proxy server...
+📡 Proxy listening on: http://localhost:3001
+🔑 Using API Key: sk-proj-fGvdFrf8ZApf...
+✅ Proxy server ready!
+
+📋 Next steps:
+   1. Keep this terminal running
+   2. In another terminal: npm start
+   3. App will use this proxy automatically
+```
+
+**Wichtig:** Lassen Sie dieses Terminal **offen**!
+
+#### Terminal 2: Angular App starten
+
+```bash
+npm start
+```
+
+**Erwartete Ausgabe:**
+```
+🔧 Processing environment files...
+📋 Environment variables:
+  - OPENAI_API_KEY: ✅ Found
+  - OPENAI_MODEL: gpt-4.1-mini
+✅ Environment processing complete
+
+** Angular Live Development Server is listening on localhost:4200 **
+✔ Compiled successfully.
+```
+
+**Dauer:** 10-20 Sekunden (erste Kompilierung)
+
+---
+
+### Schritt 5: App im Browser öffnen
+
+```
+http://localhost:4200
+```
+
+**Browser-Konsole sollte zeigen:**
+```
+🔧 Development mode: Using direct OpenAI API access (no proxy)
+```
+
+**Wenn Sie das sehen:** ✅ Alles funktioniert!
+
+**Test durchführen:**
+1. Text eingeben (z.B. "Mathematik-Kurs für Grundschüler")
+2. "Extraktion starten" klicken
+3. Felder werden automatisch gefüllt (6-10 Sekunden)
+4. Keine CORS-Fehler! 🎉
+
+---
+
+## 🏗️ Production Build
+
+### Build für Netlify/Vercel
+
+```bash
+npm run build
+```
+
+**Ausgabe:**
+```
+✅ Environment processing complete
+√ Browser application bundle generation complete.
+√ Copying assets complete.
+√ Index html generation complete.
+
+Initial chunk files  | Names      | Raw size | Estimated transfer size
+main.*.js            | main       | 968 kB   | 220 kB
+styles.*.css         | styles     | 89 kB    | 7.5 kB
+polyfills.*.js       | polyfills  | 35 kB    | 11 kB
+
+Build at: 2025-10-15 - Time: 8169ms
+```
+
+**Build-Artefakte:** `dist/` Verzeichnis
+
+---
+
+### Deployment auf Netlify
+
+#### 1. Environment Variable setzen
+
+**Netlify Dashboard → Ihr Site → Site Settings → Environment Variables**
+
+```
+Key:   OPENAI_API_KEY
+Value: sk-proj-...
+Scope: Production
+```
+
+#### 2. Deployen
+
+**Option A: Git Push (empfohlen)**
+```bash
+git add .
+git commit -m "Deploy: Production ready"
+git push origin main
+```
+
+Netlify baut automatisch.
+
+**Option B: Netlify CLI**
+```bash
+npm install -g netlify-cli
+netlify login
+netlify deploy --prod
+```
+
+#### 3. Testen
+
+Nach dem Deployment:
+- Öffnen Sie Ihre Netlify-URL
+- Browser-Konsole sollte zeigen:
+  ```
+  🚀 Production mode: Using Netlify Function proxy
+  ```
+- API-Key ist **nicht** im Code sichtbar ✅
+
+---
+
+## 🎓 Workflow & Nutzung
 
 ```
 ┌─────────────────────────────────────────┐
@@ -598,3 +929,343 @@ Entsprechend der Hauptanwendung
 ---
 
 **Entwickelt mit ❤️ für schnelle, zuverlässige Metadaten-Extraktion**
+
+---
+
+## 🚫 Troubleshooting
+
+### ❌ CORS-Fehler: "Access to fetch blocked"
+
+**Symptom:**
+```
+Access to fetch at 'https://api.openai.com/v1/chat/completions' from origin 
+'http://localhost:4200' has been blocked by CORS policy
+```
+
+**Ursache:** Proxy-Server läuft nicht
+
+**Lösung:**
+```bash
+# Terminal 1: Proxy starten
+npm run proxy
+
+# Terminal 2: App starten
+npm start
+```
+
+**Wichtig:** Beide Terminals müssen gleichzeitig laufen!
+
+---
+
+### ❌ Fehler: "Port 3001 already in use"
+
+**Symptom:** Proxy kann nicht starten
+
+**Lösung Windows:**
+```bash
+# Port-Nutzung prüfen
+netstat -ano | findstr :3001
+
+# Prozess beenden (PID aus vorherigem Befehl)
+taskkill /PID <PID> /F
+
+# Proxy neu starten
+npm run proxy
+```
+
+**Lösung Linux/Mac:**
+```bash
+# Prozess finden und beenden
+lsof -ti:3001 | xargs kill -9
+
+# Proxy neu starten
+npm run proxy
+```
+
+---
+
+### ❌ Fehler: "OPENAI_API_KEY environment variable is not set"
+
+**Symptom:** Proxy startet nicht, Fehlermeldung beim Start
+
+**Lösung:**
+Setzen Sie die Environment Variable **vor** dem Start des Proxys:
+
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY="sk-proj-..."
+npm run proxy
+```
+
+**Windows (CMD):**
+```cmd
+set OPENAI_API_KEY=sk-proj-...
+npm run proxy
+```
+
+**Linux/Mac:**
+```bash
+export OPENAI_API_KEY=sk-proj-...
+npm run proxy
+```
+
+**Alternative:** Konfigurieren Sie den Key in `src/environments/environment.ts` (dann ist die Environment Variable nicht nötig).
+
+---
+
+### ❌ Fehler: "API key not configured" (in der App)
+
+**Symptom:** App startet, aber Extraktion funktioniert nicht
+
+**Lösung:**
+1. Öffnen Sie `src/environments/environment.ts`
+2. Fügen Sie Ihren API-Key ein:
+   ```typescript
+   apiKey: 'sk-proj-...' // Ihr echter Key
+   ```
+3. Speichern
+4. App neu starten (Strg + C, dann `npm start`)
+
+---
+
+### ❌ Fehler: "Failed to compile"
+
+**Symptom:** Angular Build schlägt fehl
+
+**Lösung:**
+```bash
+# Dependencies neu installieren
+rm -rf node_modules package-lock.json
+npm install
+
+# Cache leeren
+npm cache clean --force
+
+# Neu starten
+npm start
+```
+
+---
+
+### ⚠️ Browser zeigt alte Version
+
+**Symptom:** Code-Änderungen werden nicht angezeigt
+
+**Lösung:**
+1. Hard-Refresh: **Strg + Shift + R** (Windows/Linux) oder **Cmd + Shift + R** (Mac)
+2. Oder: Browser-Cache leeren
+3. Oder: Inkognito-Modus verwenden
+
+---
+
+### ❌ Netlify Build schlägt fehl
+
+**Symptom:** Deployment Error auf Netlify
+
+**Lösung:**
+1. Prüfen Sie Netlify Build-Logs
+2. Stellen Sie sicher:
+   - Environment Variable `OPENAI_API_KEY` ist gesetzt
+   - `environment.prod.ts` hat **leeren** API-Key
+   - `netlify.toml` ist korrekt konfiguriert
+3. Trigger Redeploy in Netlify Dashboard
+
+---
+
+### 🔍 Debug-Modus aktivieren
+
+**Browser-Konsole öffnen:** F12
+
+**Nach diesen Meldungen suchen:**
+```
+🔧 Development mode: Using direct OpenAI API access (no proxy)
+✅ = Erfolgreich konfiguriert
+```
+
+```
+🚀 Production mode: Using Netlify Function proxy
+✅ = Production-Modus aktiv
+```
+
+**Proxy-Terminal prüfen:**
+```
+📤 Proxying request to OpenAI API...
+   Model: gpt-4.1-mini
+   Messages: 1
+✅ Response received from OpenAI (200)
+```
+
+---
+
+## 📝 Command Reference
+
+### Development Commands
+
+| Command | Beschreibung | Terminal |
+|---------|--------------|----------|
+| `npm run proxy` | Startet lokalen Proxy-Server (Port 3001) | Terminal 1 |
+| `npm start` | Startet Angular Dev-Server (Port 4200) | Terminal 2 |
+| `npm run build` | Production Build (Output: `dist/`) | Beliebig |
+| `npm test` | Unit Tests ausführen | Beliebig |
+| `npm run lint` | Code-Qualität prüfen | Beliebig |
+
+### Shortcuts während Entwicklung
+
+| Aktion | Shortcut (Windows/Linux) | Shortcut (Mac) |
+|--------|-------------------------|----------------|
+| Dev-Server stoppen | Strg + C | Cmd + C |
+| Hard-Refresh Browser | Strg + Shift + R | Cmd + Shift + R |
+| Browser-Konsole | F12 | Cmd + Option + I |
+| DevTools | F12 | Cmd + Option + J |
+
+### Netlify Commands
+
+```bash
+# Netlify CLI installieren (einmalig)
+npm install -g netlify-cli
+
+# Login
+netlify login
+
+# Lokaler Test mit Netlify Functions
+netlify dev
+
+# Production Deployment
+netlify deploy --prod
+
+# Build-Logs anzeigen
+netlify logs
+
+# Environment Variables verwalten
+netlify env:list
+netlify env:set OPENAI_API_KEY sk-proj-...
+```
+
+---
+
+## ❓ FAQ (Häufig gestellte Fragen)
+
+### Q: Warum brauche ich 2 Terminals?
+**A:** Die OpenAI API blockiert direkte Browser-Requests (CORS-Policy). Der lokale Proxy-Server umgeht dieses Problem, indem er Requests weiterleitet und CORS-Header hinzufügt.
+
+### Q: Funktioniert das auch ohne Proxy?
+**A:** Nein, nicht lokal. Browser blockieren direkte API-Aufrufe zu OpenAI. Auf Netlify funktioniert es automatisch über Netlify Functions.
+
+### Q: Kann ich einen anderen Port verwenden?
+**A:** Ja! Ändern Sie in `local-proxy.js` die Zeile:
+```javascript
+const PORT = 3001; // Ändern Sie auf z.B. 8080
+```
+Und in `src/app/services/openai-proxy.service.ts`:
+```typescript
+const apiUrl = 'http://localhost:3001/v1/chat/completions'; // Port anpassen
+```
+
+### Q: Wie viel kostet die OpenAI API-Nutzung?
+**A:** Mit `gpt-4.1-mini`:
+- **Input:** $0.15 / 1M Tokens
+- **Output:** $0.60 / 1M Tokens
+- **Pro Extraktion:** ~$0.003-0.005 (ca. 30 Felder)
+- **1000 Extraktionen:** ~$3-5
+
+### Q: Kann ich ein anderes Modell verwenden?
+**A:** Ja! In `environment.ts`:
+```typescript
+model: 'gpt-4o-mini'  // Günstiger, aber weniger genau
+model: 'gpt-4.1'         // Teurer, aber genauer
+model: 'gpt-4.1-mini'    // Empfohlen: Balance aus Preis/Qualität
+```
+
+### Q: Wo werden meine Daten gespeichert?
+**A:** 
+- **Lokal:** Nur im Browser (LocalStorage/SessionStorage)
+- **OpenAI:** Requests werden verarbeitet, gemäß [OpenAI Privacy Policy](https://openai.com/policies/privacy-policy)
+- **Netlify:** Keine Datenspeicherung, nur Request-Weiterleitung
+
+### Q: Ist mein API-Key sicher?
+**A:**
+- **Lokal:** Key ist in `environment.ts` (in `.gitignore`, wird nicht committed)
+- **Production:** Key ist in Netlify Environment Variables (verschlüsselt, nicht im Code)
+- **Wichtig:** Niemals API-Key in Git committen!
+
+### Q: Kann ich das auch offline nutzen?
+**A:** Nein, die App benötigt Internetzugang für:
+- OpenAI API-Aufrufe
+- Schema-Downloads
+- Optional: Vokabular-Updates
+
+### Q: Unterstützt die App mehrere Sprachen?
+**A:** Die Prompts sind auf Deutsch, aber die App kann Text in beliebigen Sprachen verarbeiten. Die KI passt sich automatisch an.
+
+---
+
+## 🔗 Nützliche Links
+
+**Projekt:**
+- **Repository:** https://github.com/janschachtschabel/metadata-agent-canvas
+- **Issues:** https://github.com/janschachtschabel/metadata-agent-canvas/issues
+- **Releases:** https://github.com/janschachtschabel/metadata-agent-canvas/releases
+
+**APIs & Frameworks:**
+- **OpenAI API Docs:** https://platform.openai.com/docs
+- **OpenAI API Keys:** https://platform.openai.com/api-keys
+- **OpenAI Pricing:** https://openai.com/api/pricing
+- **Netlify Docs:** https://docs.netlify.com
+- **Angular Docs:** https://angular.dev
+
+---
+
+## 📬 Weitere Dokumentation
+
+### Detaillierte Anleitungen
+- **START_LOCAL.md** - Schnellstart-Anleitung (2 Terminals)
+- **LOCAL_DEVELOPMENT.md** - Lokale Entwicklung ohne Netlify CLI
+- **CORS_FIX.md** - CORS-Problem und Lösung erklärt
+- **INSTALLATION.md** - Erweiterte Installation
+
+### Technische Dokumentation
+- **CANVAS_DOCUMENTATION.md** - Canvas-Architektur
+- **PERFORMANCE.md** - Performance-Optimierungen & Benchmarks
+- **ENVIRONMENT_CONFIG.md** - Alle Konfigurationsoptionen
+- **SECURITY_CHECKLIST.md** - Sicherheits-Checkliste vor Git Commit
+
+### Deployment
+- **DEPLOY.md** - Vercel/Netlify Deployment-Anleitung
+- **CHANGES_FOR_GIT.md** - Änderungen für Git-Repository
+
+---
+
+## 🤝 Beitragen
+
+Beiträge sind willkommen! Bitte:
+1. Fork das Repository
+2. Erstellen Sie einen Feature-Branch (`git checkout -b feature/AmazingFeature`)
+3. Committen Sie Ihre Änderungen (`git commit -m 'Add some AmazingFeature'`)
+4. Pushen Sie zum Branch (`git push origin feature/AmazingFeature`)
+5. Öffnen Sie einen Pull Request
+
+**Wichtig:** Prüfen Sie vorher `SECURITY_CHECKLIST.md` - keine API-Keys committen!
+
+---
+
+## 📄 Lizenz
+
+Apache License 2.0
+
+Siehe [LICENSE](LICENSE) Datei für Details.
+
+Copyright 2025 Jan Schachtschabel
+
+---
+
+## 👏 Credits
+
+**Entwickelt mit ❤️ für schnelle, zuverlässige Metadaten-Extraktion**
+
+**Technologie-Stack:**
+- Angular 19
+- RxJS
+- Material Design
+- LangChain
+- OpenAI API
+- Netlify Functions
