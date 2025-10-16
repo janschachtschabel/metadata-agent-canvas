@@ -1,6 +1,6 @@
 # Environment Variables Guide
 
-Das `replace-env.js` Script unterstützt jetzt **beide LLM-Provider** und kann deren Konfiguration aus Environment Variables injizieren.
+Das `replace-env.js` Script unterstützt jetzt **drei LLM-Provider** und kann deren Konfiguration aus Environment Variables injizieren.
 
 ---
 
@@ -10,7 +10,7 @@ Das `replace-env.js` Script unterstützt jetzt **beide LLM-Provider** und kann d
 
 | Variable | Beschreibung | Beispiel |
 |----------|-------------|----------|
-| `LLM_PROVIDER` | Welcher Provider verwendet werden soll | `openai` oder `provider-b` |
+| `LLM_PROVIDER` | Welcher Provider verwendet werden soll | `openai`, `b-api-openai`, oder `b-api-academiccloud` |
 
 ---
 
@@ -26,13 +26,18 @@ Das `replace-env.js` Script unterstützt jetzt **beide LLM-Provider** und kann d
 
 ---
 
-### **Provider B Configuration**
+### **B-API Configuration**
+
+**Beide B-API Provider (`b-api-openai` und `b-api-academiccloud`) verwenden den gleichen API Key:**
 
 | Variable | Beschreibung | Standard | Beispiel |
 |----------|-------------|----------|----------|
-| `B_API_KEY` | Provider B API Key | - | `bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc` |
-| `B_MODEL` | Modell-Name | `gpt-4.1-mini` | `gpt-4.1-mini` |
-| `B_BASE_URL` | Base URL | `https://b-api.staging.openeduhub.net/api/v1/llm/openai` | _(siehe Standard)_ |
+| `B_API_KEY` | B-API Key (für beide B-API Provider) | - | `bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc` |
+| `B_MODEL` | Modell-Name (optional) | Provider-abhängig | `gpt-4.1-mini` |
+
+**Provider-spezifische Defaults:**
+- **b-api-openai:** `gpt-4.1-mini` (OpenAI-kompatibel)
+- **b-api-academiccloud:** `deepseek-r1` (AcademicCloud)
 
 ---
 
@@ -42,15 +47,15 @@ Das `replace-env.js` Script unterstützt jetzt **beide LLM-Provider** und kann d
 
 ```powershell
 # LLM Provider auswählen
-$env:LLM_PROVIDER="provider-b"
+$env:LLM_PROVIDER="b-api-openai"  # oder "b-api-academiccloud" oder "openai"
 
 # OpenAI
 $env:OPENAI_API_KEY="sk-proj-..."
 $env:OPENAI_MODEL="gpt-4.1-mini"
 
-# Provider B
+# B-API (für beide B-API Provider)
 $env:B_API_KEY="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"
-$env:B_MODEL="gpt-4.1-mini"
+$env:B_MODEL="gpt-4.1-mini"  # Optional
 
 # App starten
 npm start
@@ -59,7 +64,7 @@ npm start
 ### **CMD:**
 
 ```cmd
-set LLM_PROVIDER=provider-b
+set LLM_PROVIDER=b-api-openai
 set OPENAI_API_KEY=sk-proj-...
 set B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
 npm start
@@ -73,15 +78,15 @@ npm start
 
 ```bash
 # LLM Provider auswählen
-export LLM_PROVIDER="provider-b"
+export LLM_PROVIDER="b-api-openai"  # oder "b-api-academiccloud" oder "openai"
 
 # OpenAI
 export OPENAI_API_KEY="sk-proj-..."
 export OPENAI_MODEL="gpt-4.1-mini"
 
-# Provider B
+# B-API (für beide B-API Provider)
 export B_API_KEY="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"
-export B_MODEL="gpt-4.1-mini"
+export B_MODEL="gpt-4.1-mini"  # Optional
 
 # App starten
 npm start
@@ -93,13 +98,18 @@ npm start
 
 **Netlify Dashboard → Site Settings → Environment Variables:**
 
-### **Beide Provider parallel:**
+### **Alle Provider parallel:**
 
 ```
-LLM_PROVIDER=provider-b
+LLM_PROVIDER=b-api-openai
 OPENAI_API_KEY=sk-proj-...
 B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
 ```
+
+**Provider wechseln:** Ändern Sie einfach `LLM_PROVIDER` zu:
+- `openai` → OpenAI direkt
+- `b-api-openai` → B-API mit OpenAI-kompatiblen Modellen
+- `b-api-academiccloud` → B-API mit AcademicCloud (deepseek-r1)
 
 **Wichtig:** Bei Netlify wird `LLM_PROVIDER` nur verwendet, wenn es in `environment.prod.ts` als leer konfiguriert ist.
 
@@ -116,7 +126,7 @@ Beim Ausführen von `npm start` oder `npm run build` sehen Sie:
 📋 Environment variables:
 
 🔹 LLM Provider:
-  - LLM_PROVIDER: provider-b
+  - LLM_PROVIDER: b-api-openai
 
 🔹 OpenAI Configuration:
   - OPENAI_API_KEY: ✅ Found
@@ -125,17 +135,19 @@ Beim Ausführen von `npm start` oder `npm run build` sehen Sie:
   - GPT5_REASONING_EFFORT: medium
   - GPT5_VERBOSITY: low
 
-🔹 Provider B Configuration:
+🔹 B-API Configuration:
   - B_API_KEY: ✅ Found
-  - B_MODEL: gpt-4.1-mini
-  - B_BASE_URL: https://b-api.staging.openeduhub.net/api/v1/llm/openai
+  - B_MODEL: (using provider default)
+  - BASE_URLs:
+    • b-api-openai: https://b-api.staging.openeduhub.net/api/v1/llm/openai
+    • b-api-academiccloud: https://b-api.staging.openeduhub.net/api/v1/llm/academiccloud
 
 📝 Processing environment.ts...
   ℹ️  File already contains an API key, skipping injection
   
 📝 Processing environment.prod.ts...
-  ✅ Injected LLM_PROVIDER: provider-b
-  ✅ Injected B_API_KEY
+  ✅ Injected LLM_PROVIDER: b-api-openai
+  ✅ Injected B_API_KEY for bApiOpenai
   ✅ environment.prod.ts updated
 
 ✅ Environment processing complete
@@ -158,6 +170,9 @@ Beim Ausführen von `npm start` oder `npm run build` sehen Sie:
 openai: {
   apiKey: 'sk-proj-...',  // ← Vorhandener Key
 }
+bApiOpenai: {
+  apiKey: 'bb6cdf84-...',  // ← Vorhandener Key
+}
 ```
 
 **Script-Verhalten:**
@@ -172,22 +187,25 @@ openai: {
 openai: {
   apiKey: '',  // ← Leerer Key = Injection aktiviert
 }
+bApiOpenai: {
+  apiKey: '',  // ← Leerer Key = Injection aktiviert
+}
 ```
 
 ---
 
 ## 🎯 Use Cases
 
-### **Use Case 1: Nur Provider B lokal**
+### **Use Case 1: Nur B-API OpenAI lokal**
 
 ```powershell
-# Nur Provider B Key setzen
+# Nur B-API Key setzen
 $env:B_API_KEY="bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc"
-$env:LLM_PROVIDER="provider-b"
+$env:LLM_PROVIDER="b-api-openai"
 
 # environment.ts:
-llmProvider: 'provider-b',
-providerB: {
+llmProvider: 'b-api-openai',
+bApiOpenai: {
   apiKey: '',  # ← Leer für Injection
 }
 
@@ -196,18 +214,18 @@ npm start
 
 **Ergebnis:**
 ```
-✅ Injected LLM_PROVIDER: provider-b
-✅ Injected B_API_KEY
+✅ Injected LLM_PROVIDER: b-api-openai
+✅ Injected B_API_KEY for bApiOpenai
 ```
 
 ---
 
-### **Use Case 2: Beide Provider parallel**
+### **Use Case 2: Alle Provider parallel**
 
 ```powershell
 $env:OPENAI_API_KEY="sk-proj-..."
 $env:B_API_KEY="bb6cdf84-..."
-$env:LLM_PROVIDER="provider-b"  # Aktiver Provider
+$env:LLM_PROVIDER="b-api-openai"  # Aktiver Provider
 
 npm start
 ```
@@ -215,7 +233,9 @@ npm start
 **Wechsel zur Laufzeit:**
 ```typescript
 // In environment.ts ändern:
-llmProvider: 'openai',  // ← Wechsel zu OpenAI
+llmProvider: 'openai',              // ← OpenAI
+llmProvider: 'b-api-openai',        // ← B-API OpenAI-kompatibel
+llmProvider: 'b-api-academiccloud', // ← B-API AcademicCloud
 ```
 
 ---
@@ -224,15 +244,18 @@ llmProvider: 'openai',  // ← Wechsel zu OpenAI
 
 **Netlify Dashboard:**
 ```
-LLM_PROVIDER=provider-b
+LLM_PROVIDER=b-api-openai
 B_API_KEY=bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc
 ```
 
 **environment.prod.ts:**
 ```typescript
 llmProvider: '',  // ← Leer für Injection
-providerB: {
+bApiOpenai: {
   apiKey: '',     // ← Leer für Injection
+}
+bApiAcademicCloud: {
+  apiKey: '',     // ← Leer für Injection (gleicher B_API_KEY)
 }
 ```
 
@@ -240,8 +263,11 @@ providerB: {
 
 **Script injiziert automatisch:**
 ```typescript
-llmProvider: 'provider-b',
-providerB: {
+llmProvider: 'b-api-openai',
+bApiOpenai: {
+  apiKey: 'bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc',
+}
+bApiAcademicCloud: {
   apiKey: 'bb6cdf84-0a9d-47f3-b673-c1b4f25b9bdc',
 }
 ```
@@ -282,8 +308,14 @@ npm start
 
 **Console prüfen:**
 ```
-🔧 Development mode: Using direct PROVIDER-B API access
-🌐 Base URL: https://b-api.staging.openeduhub.net/api/v1/llm/openai
+🔧 Development mode: Using local proxy for b-api-openai
+🌐 Proxy URL: http://localhost:3001
+```
+
+**Oder für AcademicCloud:**
+```
+🔧 Development mode: Using local proxy for b-api-academiccloud
+🌐 Proxy URL: http://localhost:3001
 ```
 
 ### **Environment Variable prüfen:**

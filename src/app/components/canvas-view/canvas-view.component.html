@@ -134,17 +134,17 @@
       <span>
         <strong>{{ state.filledFields }}</strong> von <strong>{{ state.totalFields }}</strong> Feldern gefüllt
       </span>
+      <div class="provider-info">{{ llmProvider }} ({{ llmModel }})</div>
     </div>
     <div class="footer-actions">
       <button 
         class="btn-success btn-large"
         (click)="confirmAndExport()"
-        [disabled]="!allRequiredFieldsFilled() || isGeocodingInProgress"
+        [disabled]="!allRequiredFieldsFilled()"
         [title]="!allRequiredFieldsFilled() ? 'Bitte füllen Sie alle Pflichtfelder aus' : 'JSON herunterladen'"
       >
-        <span *ngIf="isGeocodingInProgress">🗺️ Geodaten werden ermittelt...</span>
-        <span *ngIf="!isGeocodingInProgress && allRequiredFieldsFilled()">✅ Bestätigen & JSON herunterladen</span>
-        <span *ngIf="!isGeocodingInProgress && !allRequiredFieldsFilled()">⚠️ Pflichtfelder ausfüllen ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
+        <span *ngIf="allRequiredFieldsFilled()">✅ Bestätigen & JSON herunterladen</span>
+        <span *ngIf="!allRequiredFieldsFilled()">⚠️ Pflichtfelder ausfüllen ({{ getRequiredFieldsStatus().filled }}/{{ getRequiredFieldsStatus().total }})</span>
       </button>
     </div>
   </div>

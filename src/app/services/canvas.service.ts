@@ -101,6 +101,10 @@ export class CanvasService {
       ]);
 
       console.log('✅ Canvas extraction complete');
+      
+      // Step 5: Auto-enrich with geocoding (after extraction complete)
+      await this.autoEnrichWithGeocoding();
+      
     } catch (error) {
       console.error('❌ Canvas extraction error:', error);
     } finally {
@@ -627,7 +631,20 @@ export class CanvasService {
    */
   private normalizeFieldValue(fieldId: string, value: any): void {
     const state = this.getCurrentState();
-    const field = [...state.coreFields, ...state.specialFields].find(f => f.fieldId === fieldId);
+    let field = [...state.coreFields, ...state.specialFields].find(f => f.fieldId === fieldId);
+    
+    // If not found in top-level, search in sub-fields
+    if (!field) {
+      for (const parentField of [...state.coreFields, ...state.specialFields]) {
+        if (parentField.subFields && parentField.subFields.length > 0) {
+          const subField = parentField.subFields.find(sf => sf.fieldId === fieldId);
+          if (subField) {
+            field = subField;
+            break;
+          }
+        }
+      }
+    }
     
     if (!field) {
       console.warn(`⚠️ Field not found for normalization: ${fieldId}`);
@@ -641,6 +658,13 @@ export class CanvasService {
       vocabularyType: field.vocabulary?.type,
       hasShape: !!field.shape
     });
+    
+    // Check if this is an address field change - trigger re-geocoding
+    if (this.isAddressField(fieldId)) {
+      console.log(`🗺️ Address field changed, will trigger re-geocoding after update`);
+      // Defer geocoding to allow the value to be set first
+      setTimeout(() => this.triggerReGeocoding(fieldId), 100);
+    }
 
     // Skip normalization for structured fields (fields with shape definition)
     // These should keep their object structure intact
@@ -870,12 +894,26 @@ export class CanvasService {
       fieldMap.set(field.fieldId, field);
     });
     
+    // Build a set of sub-field IDs to exclude from output
+    const subFieldIds = new Set<string>();
+    allFields.forEach(field => {
+      if (field.isParent && field.subFields) {
+        field.subFields.forEach((sf: any) => subFieldIds.add(sf.fieldId));
+      }
+    });
+    
     // Build enriched output
     const enrichedOutput: Record<string, any> = {};
     
     Object.keys(state.metadata).forEach(fieldId => {
       const value = state.metadata[fieldId];
       const field = fieldMap.get(fieldId);
+      
+      // Skip sub-fields - they will be reconstructed into parent objects
+      if (subFieldIds.has(fieldId)) {
+        console.log(`⏭️ Skipping sub-field ${fieldId} (will be included in parent object)`);
+        return;
+      }
       
       if (!field) {
         // Fallback: field not found (shouldn't happen)
@@ -885,19 +923,8 @@ export class CanvasService {
       
       // Check if field has sub-fields (complex object with shape)
       if (field.isParent && field.subFields && field.subFields.length > 0) {
-        // Check if metadata already has geocoded/enriched data (from enrichWithGeocodingBeforeExport)
-        // If so, use that instead of reconstructing from sub-fields
-        if (value && Array.isArray(value) && value.some((v: any) => v.geo)) {
-          console.log(`🗺️ Using geocoded data from metadata for ${fieldId} (has geo coordinates)`);
-          enrichedOutput[fieldId] = value;
-          return;
-        } else if (value && typeof value === 'object' && value.geo) {
-          console.log(`🗺️ Using geocoded data from metadata for ${fieldId} (has geo coordinates)`);
-          enrichedOutput[fieldId] = value;
-          return;
-        }
-        
-        // Otherwise reconstruct from sub-fields
+        // Always reconstruct from current sub-field values
+        // This ensures we get the latest values (including geocoded data)
         console.log(`🔧 Reconstructing object for ${fieldId} from ${field.subFields.length} sub-fields`);
         const reconstructedValue = this.shapeExpander.reconstructObjectFromSubFields(field, allFields);
         enrichedOutput[fieldId] = reconstructedValue;
@@ -1044,6 +1071,254 @@ export class CanvasService {
       this.updateState({ metadata });
     } else {
       console.log('ℹ️ No new locations geocoded (addresses may already have coordinates or no addresses found)');
+    }
+  }
+
+  /**
+   * Check if a field is an address-related field
+   */
+  private isAddressField(fieldId: string): boolean {
+    return fieldId.includes('streetAddress') || 
+           fieldId.includes('postalCode') || 
+           fieldId.includes('addressLocality') || 
+           fieldId.includes('addressCountry') ||
+           fieldId.includes('addressRegion');
+  }
+  
+  /**
+   * Trigger re-geocoding when user changes an address field
+   */
+  private async triggerReGeocoding(fieldId: string): Promise<void> {
+    console.log(`🗺️ Re-geocoding triggered by field change: ${fieldId}`);
+    
+    const state = this.getCurrentState();
+    const allFields = [...state.coreFields, ...state.specialFields];
+    
+    // Find the parent location field for this address field
+    let parentField: any = null;
+    for (const field of allFields) {
+      if (field.isParent && field.subFields) {
+        const hasThisSubField = field.subFields.some((sf: any) => sf.fieldId === fieldId);
+        if (hasThisSubField) {
+          parentField = field;
+          break;
+        }
+      }
+    }
+    
+    if (!parentField) {
+      console.log(`⚠️ Could not find parent location field for ${fieldId}`);
+      return;
+    }
+    
+    console.log(`📍 Found parent field: ${parentField.fieldId}`);
+    
+    const subFields = parentField.subFields!;
+    
+    // Build address from current sub-field values
+    const streetField = subFields.find((sf: any) => sf.fieldId.includes('streetAddress'));
+    const postalField = subFields.find((sf: any) => sf.fieldId.includes('postalCode'));
+    const localityField = subFields.find((sf: any) => sf.fieldId.includes('addressLocality'));
+    const regionField = subFields.find((sf: any) => sf.fieldId.includes('addressRegion'));
+    const countryField = subFields.find((sf: any) => sf.fieldId.includes('addressCountry'));
+    
+    // Find geo coordinate fields
+    const latField = subFields.find((sf: any) => sf.fieldId.includes('latitude'));
+    const lonField = subFields.find((sf: any) => sf.fieldId.includes('longitude'));
+    
+    // Check if we have enough address data
+    const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
+    
+    if (!hasAddress) {
+      console.log(`⏭️ Not enough address data for geocoding`);
+      return;
+    }
+    
+    if (!latField || !lonField) {
+      console.log(`⚠️ Missing lat/lon fields`);
+      return;
+    }
+    
+    const address: any = {
+      streetAddress: streetField?.value || '',
+      postalCode: postalField?.value || '',
+      addressLocality: localityField?.value || '',
+      addressRegion: regionField?.value || '',
+      addressCountry: countryField?.value || ''
+    };
+    
+    console.log(`🌍 Re-geocoding address:`, address);
+    
+    try {
+      const geoResult = await this.geocodingService.geocodeAddress(address);
+      
+      if (geoResult) {
+        // Update latitude/longitude
+        latField.value = geoResult.latitude;
+        latField.status = FieldStatus.FILLED;
+        lonField.value = geoResult.longitude;
+        lonField.status = FieldStatus.FILLED;
+        
+        // Update region and country if returned
+        if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
+          regionField.value = geoResult.enrichedAddress.addressRegion;
+          regionField.status = FieldStatus.FILLED;
+        }
+        if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
+          countryField.value = geoResult.enrichedAddress.addressCountry;
+          countryField.status = FieldStatus.FILLED;
+        }
+        
+        // Trigger UI update
+        const currentState = this.getCurrentState();
+        this.updateState({ 
+          coreFields: [...currentState.coreFields],
+          specialFields: [...currentState.specialFields]
+        });
+        
+        console.log(`✅ Re-geocoded: ${address.addressLocality} → ${geoResult.latitude}, ${geoResult.longitude}`);
+      }
+    } catch (error) {
+      console.error(`❌ Re-geocoding failed:`, error);
+    }
+  }
+
+  /**
+   * Auto-enrich with geocoding after extraction
+   * Fills empty geo fields (latitude/longitude) automatically
+   */
+  private async autoEnrichWithGeocoding(): Promise<void> {
+    console.log('🗺️ Auto-enriching with geocoding...');
+    
+    const state = this.getCurrentState();
+    const allFields = [...state.coreFields, ...state.specialFields];
+    
+    // Find location parent fields (schema:location, schema:address, schema:legalAddress)
+    const locationParentFields = allFields.filter(f => 
+      (f.fieldId === 'schema:location' || f.fieldId === 'schema:address' || f.fieldId === 'schema:legalAddress') 
+      && f.isParent 
+      && f.subFields 
+      && f.subFields.length > 0
+    );
+    
+    console.log(`📍 Found ${locationParentFields.length} location parent fields with sub-fields`);
+    
+    if (locationParentFields.length === 0) {
+      console.log('ℹ️ No location fields with sub-fields found');
+      return;
+    }
+    
+    let geocodedCount = 0;
+    
+    for (const parentField of locationParentFields) {
+      console.log(`\n🔍 Processing ${parentField.fieldId} (${parentField.subFields!.length} sub-fields)`);
+      
+      const subFields = parentField.subFields!;
+      
+      // Find address sub-fields
+      const streetField = subFields.find(sf => sf.fieldId.includes('streetAddress'));
+      const postalField = subFields.find(sf => sf.fieldId.includes('postalCode'));
+      const localityField = subFields.find(sf => sf.fieldId.includes('addressLocality'));
+      const regionField = subFields.find(sf => sf.fieldId.includes('addressRegion'));
+      const countryField = subFields.find(sf => sf.fieldId.includes('addressCountry'));
+      
+      // Find geo coordinate fields
+      const latField = subFields.find(sf => sf.fieldId.includes('latitude'));
+      const lonField = subFields.find(sf => sf.fieldId.includes('longitude'));
+      
+      console.log(`   📬 Address fields:`, {
+        street: `${streetField?.fieldId} = ${streetField?.value}`,
+        postal: `${postalField?.fieldId} = ${postalField?.value}`,
+        locality: `${localityField?.fieldId} = ${localityField?.value}`,
+        region: `${regionField?.fieldId} = ${regionField?.value}`,
+        country: `${countryField?.fieldId} = ${countryField?.value}`
+      });
+      
+      console.log(`   🗺️ Geo fields:`, {
+        lat: `${latField?.fieldId} = ${latField?.value}`,
+        lon: `${lonField?.fieldId} = ${lonField?.value}`
+      });
+      
+      // Check if we have address data
+      const hasAddress = (streetField?.value || postalField?.value || localityField?.value);
+      
+      if (!hasAddress) {
+        console.log(`   ⏭️ Skipping: No address data`);
+        continue;
+      }
+      
+      // Skip if geo coordinates already exist
+      if (latField?.value && lonField?.value) {
+        console.log(`   ⏭️ Skipping: Geo coordinates already present`);
+        continue;
+      }
+      
+      if (!latField || !lonField) {
+        console.log(`   ⚠️ Missing latitude/longitude fields`);
+        continue;
+      }
+      
+      // Build address object
+      const address: any = {
+        streetAddress: streetField?.value || '',
+        postalCode: postalField?.value || '',
+        addressLocality: localityField?.value || '',
+        addressRegion: regionField?.value || '',
+        addressCountry: countryField?.value || ''
+      };
+      
+      console.log(`   🌍 Geocoding address:`, address);
+      
+      try {
+        const geoResult = await this.geocodingService.geocodeAddress(address);
+        
+        if (geoResult) {
+          console.log(`   🎯 Updating fields:`, {
+            latFieldId: latField.fieldId,
+            lonFieldId: lonField.fieldId,
+            latValue: geoResult.latitude,
+            lonValue: geoResult.longitude
+          });
+          
+          // Update latitude/longitude directly in field's value property
+          latField.value = geoResult.latitude;
+          latField.status = FieldStatus.FILLED;
+          lonField.value = geoResult.longitude;
+          lonField.status = FieldStatus.FILLED;
+          
+          // Also update region and country if returned by geocoding API
+          if (geoResult.enrichedAddress?.addressRegion && regionField && !regionField.value) {
+            regionField.value = geoResult.enrichedAddress.addressRegion;
+            regionField.status = FieldStatus.FILLED;
+            console.log(`   📍 Added region: ${geoResult.enrichedAddress.addressRegion}`);
+          }
+          if (geoResult.enrichedAddress?.addressCountry && countryField && !countryField.value) {
+            countryField.value = geoResult.enrichedAddress.addressCountry;
+            countryField.status = FieldStatus.FILLED;
+            console.log(`   📍 Added country: ${geoResult.enrichedAddress.addressCountry}`);
+          }
+          
+          // Trigger state update to refresh UI
+          const currentState = this.getCurrentState();
+          this.updateState({ 
+            coreFields: [...currentState.coreFields],
+            specialFields: [...currentState.specialFields]
+          });
+          
+          geocodedCount++;
+          console.log(`   ✅ Geocoded: ${address.addressLocality} → ${geoResult.latitude}, ${geoResult.longitude}`);
+        } else {
+          console.log(`   ⚠️ Geocoding returned no result`);
+        }
+      } catch (error) {
+        console.error(`   ❌ Geocoding failed:`, error);
+      }
+    }
+    
+    if (geocodedCount > 0) {
+      console.log(`\n✅ Auto-geocoding complete: ${geocodedCount} locations geocoded`);
+    } else {
+      console.log('\nℹ️ No locations geocoded');
     }
   }
 

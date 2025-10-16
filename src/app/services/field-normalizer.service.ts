@@ -198,6 +198,15 @@ export class FieldNormalizerService {
       }
     }
 
+    // 6. Geo coordinates: Parse from string
+    if (field.fieldId?.includes('latitude') || field.fieldId?.includes('longitude')) {
+      const geoMatch = this.tryParseGeoCoordinate(userInput, field.fieldId);
+      if (geoMatch !== null && geoMatch !== userInput) {
+        console.log(`  🗺️ Geo coordinate: "${userInput}" → ${geoMatch}`);
+        return {success: true, value: geoMatch};
+      }
+    }
+
     // No local normalization possible
     return {success: false, value: userInput};
   }
@@ -346,6 +355,55 @@ export class FieldNormalizerService {
     // If no format matched, signal that LLM fallback is needed
     console.log(`  ⚠️ Date "${str}" not recognized locally, needs LLM fallback`);
     return null;
+  }
+
+  /**
+   * Try to parse and validate geo coordinates (latitude/longitude)
+   */
+  private tryParseGeoCoordinate(value: any, fieldId: string): number | null {
+    // Already a number: validate range
+    if (typeof value === 'number') {
+      return this.validateGeoCoordinate(value, fieldId);
+    }
+    
+    if (typeof value !== 'string') return null;
+    
+    const str = value.trim();
+    
+    // Try to parse as number
+    const num = parseFloat(str);
+    if (isNaN(num)) return null;
+    
+    // Validate and return
+    return this.validateGeoCoordinate(num, fieldId);
+  }
+  
+  /**
+   * Validate geo coordinate range
+   */
+  private validateGeoCoordinate(value: number, fieldId: string): number | null {
+    const isLatitude = fieldId.includes('latitude');
+    const isLongitude = fieldId.includes('longitude');
+    
+    if (isLatitude) {
+      // Latitude: -90 to 90
+      if (value < -90 || value > 90) {
+        console.log(`  ⚠️ Invalid latitude: ${value} (must be -90 to 90)`);
+        return null;
+      }
+      // Round to 7 decimal places (~1cm precision)
+      return Math.round(value * 10000000) / 10000000;
+    } else if (isLongitude) {
+      // Longitude: -180 to 180
+      if (value < -180 || value > 180) {
+        console.log(`  ⚠️ Invalid longitude: ${value} (must be -180 to 180)`);
+        return null;
+      }
+      // Round to 7 decimal places (~1cm precision)
+      return Math.round(value * 10000000) / 10000000;
+    }
+    
+    return value;
   }
 
   /**
