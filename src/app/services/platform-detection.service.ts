@@ -13,6 +13,7 @@ export type DeploymentPlatform = 'netlify' | 'vercel' | 'local' | 'unknown';
 export class PlatformDetectionService {
   
   private platform: DeploymentPlatform = 'unknown';
+  private platformConfirmed: boolean = false;
   
   constructor() {
     this.detectPlatform();
@@ -24,6 +25,8 @@ export class PlatformDetectionService {
   private detectPlatform(): void {
     const hostname = window.location.hostname;
     
+    console.log('🔍 Detecting platform for hostname:', hostname);
+    
     // Local development
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       this.platform = 'local';
@@ -31,23 +34,37 @@ export class PlatformDetectionService {
       return;
     }
     
-    // Vercel detection (*.vercel.app or custom domain on Vercel)
-    if (hostname.includes('vercel.app') || this.isVercelCustomDomain()) {
+    // Vercel detection - CHECK FIRST (more specific)
+    // Check hostname first, then environment indicators
+    if (hostname.includes('vercel.app')) {
       this.platform = 'vercel';
-      console.log('▲ Platform: Vercel');
+      console.log('▲ Platform: Vercel (detected via hostname)');
       return;
     }
     
-    // Netlify detection (*.netlify.app or custom domain on Netlify)
-    if (hostname.includes('netlify.app') || this.isNetlifyCustomDomain()) {
+    // Check for Vercel environment indicators
+    if (this.isVercelCustomDomain()) {
+      this.platform = 'vercel';
+      console.log('▲ Platform: Vercel (detected via environment)');
+      return;
+    }
+    
+    // Netlify detection
+    if (hostname.includes('netlify.app')) {
       this.platform = 'netlify';
-      console.log('◆ Platform: Netlify');
+      console.log('◆ Platform: Netlify (detected via hostname)');
       return;
     }
     
-    // Default to Netlify (if unknown)
-    this.platform = 'netlify';
-    console.warn('⚠️ Platform: Unknown - Defaulting to Netlify');
+    if (this.isNetlifyCustomDomain()) {
+      this.platform = 'netlify';
+      console.log('◆ Platform: Netlify (detected via environment)');
+      return;
+    }
+    
+    // Default to unknown, but log warning
+    this.platform = 'unknown';
+    console.warn('⚠️ Platform: Unknown - Hostname:', hostname);
   }
   
   /**
@@ -83,6 +100,13 @@ export class PlatformDetectionService {
    * Get OpenAI Proxy URL based on platform
    */
   getOpenAIProxyUrl(): string {
+    // Runtime check: Try Vercel first if hostname contains vercel
+    if (!this.platformConfirmed && window.location.hostname.includes('vercel')) {
+      this.platform = 'vercel';
+      this.platformConfirmed = true;
+      console.log('🔄 Platform corrected to Vercel via runtime check');
+    }
+    
     switch (this.platform) {
       case 'netlify':
         return '/.netlify/functions/openai-proxy';
@@ -91,7 +115,11 @@ export class PlatformDetectionService {
       case 'local':
         return 'http://localhost:3001/llm';
       default:
-        // Default to Netlify
+        // Fallback: Try to detect from hostname
+        if (window.location.hostname.includes('vercel')) {
+          console.log('⚠️ Unknown platform, but hostname contains "vercel" - using Vercel API');
+          return '/api/openai-proxy';
+        }
         return '/.netlify/functions/openai-proxy';
     }
   }
@@ -108,6 +136,9 @@ export class PlatformDetectionService {
       case 'local':
         return 'http://localhost:3001/geocoding';
       default:
+        if (window.location.hostname.includes('vercel')) {
+          return '/api/geocode-proxy';
+        }
         return '/.netlify/functions/photon';
     }
   }
@@ -124,6 +155,9 @@ export class PlatformDetectionService {
       case 'local':
         return 'http://localhost:3001/repository';
       default:
+        if (window.location.hostname.includes('vercel')) {
+          return '/api/repository-proxy';
+        }
         return '/.netlify/functions/repository-proxy';
     }
   }
