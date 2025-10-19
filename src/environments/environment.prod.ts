@@ -62,6 +62,7 @@ export const environment = {
   
   // Repository API Configuration (edu-sharing)
   repository: {
-    proxyUrl: '' // Production uses /.netlify/functions/repository-proxy
+    proxyUrl: '', // Production uses /.netlify/functions/repository-proxy
+    baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
   }
 };

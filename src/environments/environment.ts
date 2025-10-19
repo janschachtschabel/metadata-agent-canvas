@@ -58,6 +58,7 @@ export const environment = {
   
   // Repository API Configuration (edu-sharing)
   repository: {
-    proxyUrl: 'http://localhost:3001/repository'
+    proxyUrl: 'http://localhost:3001/repository',
+    baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
   }
 };

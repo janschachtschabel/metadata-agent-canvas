@@ -321,8 +321,11 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Send metadata to parent window (Extension or Bookmarklet)
    */
   private sendMetadataToParent(): void {
-    const json = this.canvasService.getMetadataJson();
-    const metadata = JSON.parse(json);
+    // For Browser-Extension: Use Repository-API format (URI strings, not {label, uri} objects)
+    // For Bookmarklet: Use enriched format with {label, uri}
+    const metadata = this.integrationMode.isBrowserExtension()
+      ? this.canvasService.getMetadataForPlugin()
+      : JSON.parse(this.canvasService.getMetadataJson());
     
     this.integrationMode.sendMetadataToParent(metadata);
     
@@ -359,7 +362,9 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
       if (this.integrationMode.isBrowserExtension()) {
         console.log('📤 Sending metadata to Browser-Plugin...');
         
-        this.integrationMode.sendMetadataToParent(metadata);
+        // Use Repository-API format (URI strings, not {label, uri} objects)
+        const pluginMetadata = this.canvasService.getMetadataForPlugin();
+        this.integrationMode.sendMetadataToParent(pluginMetadata);
         
         // Show success message
         alert(`✅ Metadaten an Browser-Plugin gesendet!
@@ -384,14 +389,21 @@ Vielen Dank! 🎉`);
       
       if (result.success) {
         // SUCCESS
-        alert(`✅ Ihr Vorschlag wurde erfolgreich eingereicht!
+        const viewInRepo = confirm(`✅ Ihr Vorschlag wurde erfolgreich eingereicht!
 
 📋 Node-ID: ${result.nodeId}
 🔍 Status: Wird geprüft
 📊 Repository: WLO Staging
 
 Ihr Beitrag wird nun von unserem Team geprüft.
-Vielen Dank! 🎉`);
+Vielen Dank! 🎉
+
+Möchten Sie den Eintrag im Repository ansehen?`);
+        
+        if (viewInRepo && result.nodeId) {
+          const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
+          window.open(repoUrl, '_blank');
+        }
         
         // Optional: Reset after success
         if (confirm('Möchten Sie einen weiteren Vorschlag einreichen?')) {
@@ -408,10 +420,8 @@ ${result.error}
 Möchten Sie den vorhandenen Eintrag im Repository ansehen?`);
         
         if (viewInRepo && result.nodeId) {
-          window.open(
-            `https://repository.staging.openeduhub.net/edu-sharing/components/render/${result.nodeId}`,
-            '_blank'
-          );
+          const repoUrl = `${environment.repository.baseUrl}/components/render/${result.nodeId}`;
+          window.open(repoUrl, '_blank');
         }
       } else {
         // ERROR
