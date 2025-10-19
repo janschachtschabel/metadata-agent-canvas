@@ -1,6 +1,13 @@
 export const environment = {
   production: true,
   
+  // Deployment Platform
+  // ⚠️ This value will be REPLACED at build time by inject-platform-env.js
+  // Priority: Environment Variable > .env file > this default
+  // Options: 'vercel', 'netlify', 'auto'
+  // Default: 'auto' (runtime hostname detection)
+  deploymentPlatform: 'auto',
+  
   // LLM Provider Selection ('openai', 'b-api-openai', or 'b-api-academiccloud')
   // NOTE: In production, switch provider via environment variable or build config
   llmProvider: 'b-api-openai', // Switch between providers

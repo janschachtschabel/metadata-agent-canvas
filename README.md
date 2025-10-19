@@ -40,7 +40,48 @@ cd metadata-agent-canvas/webkomponente-canvas
 npm install
 ```
 
-### 3. API-Key & Provider konfigurieren
+### 3. Environment konfigurieren (.env File)
+
+**Erstellen Sie eine `.env` Datei:**
+
+```bash
+cp .env.example .env
+```
+
+**Wichtige Environment Variables:**
+
+```bash
+# ⚠️ WICHTIG: Deployment Platform (steuert API-Endpunkte)
+# Optionen: local, vercel, netlify, auto
+DEPLOYMENT_PLATFORM=local
+
+# LLM Provider (openai, b-api-openai, b-api-academiccloud)
+LLM_PROVIDER=b-api-openai
+
+# API Keys
+B_API_KEY=your-uuid-key-here
+OPENAI_API_KEY=sk-your-key-here
+```
+
+#### 🎯 DEPLOYMENT_PLATFORM - Wichtig!
+
+Diese Variable steuert welche API-Endpunkte verwendet werden:
+
+| Wert | Endpunkte | Verwendung |
+|------|-----------|------------|
+| `local` | `http://localhost:3001/*` | Lokale Entwicklung |
+| `vercel` | `/api/*` | Vercel Deployment |
+| `netlify` | `/.netlify/functions/*` | Netlify Deployment |
+| `auto` | Hostname-basiert | Automatische Erkennung |
+
+**Priorität (höchste zuerst):**
+1. 🥇 Environment Variable (Vercel/Netlify Dashboard)
+2. 🥈 `.env` File (lokal)
+3. 🥉 Hardcoded Fallback
+
+---
+
+### 4. API-Key & Provider konfigurieren
 
 **NEU: Multi-Provider Support** 🎉
 
@@ -245,9 +286,62 @@ npm install
 
 ---
 
-### Schritt 3: API-Key konfigurieren
+### Schritt 3: Environment-Datei erstellen (.env)
 
-#### Option A: Direkt in environment.ts (Lokal)
+**Erstellen Sie eine `.env` Datei im Projekt-Root:**
+
+```bash
+cp .env.example .env
+```
+
+**Editieren Sie `.env` mit Ihren Werten:**
+
+```bash
+# ═══════════════════════════════════════════════════════
+# Deployment Platform Configuration
+# ═══════════════════════════════════════════════════════
+# ⚠️ WICHTIG: Steuert welche API-Endpunkte verwendet werden
+#
+# Priorität (höchste zuerst):
+# 1. Environment Variable (Vercel/Netlify Dashboard)
+# 2. Diese .env Datei (lokale Entwicklung)
+# 3. Hardcoded Fallback (nur als Sicherheitsnetz)
+#
+# Optionen:
+# - local:   Verwendet http://localhost:3001/* (lokale Entwicklung)
+# - vercel:  Verwendet /api/* (Vercel Deployment)
+# - netlify: Verwendet /.netlify/functions/* (Netlify Deployment)  
+# - auto:    Automatische Erkennung basierend auf Hostname (Fallback)
+
+DEPLOYMENT_PLATFORM=local
+
+# ═══════════════════════════════════════════════════════
+# LLM Provider & API Keys
+# ═══════════════════════════════════════════════════════
+
+# LLM Provider (openai, b-api-openai, b-api-academiccloud)
+LLM_PROVIDER=b-api-openai
+
+# B-API Key (für b-api-openai und b-api-academiccloud)
+B_API_KEY=your-uuid-key-here
+
+# OpenAI API Key (nur für direkten OpenAI Provider)
+OPENAI_API_KEY=sk-your-api-key-here
+```
+
+**⚠️ Wichtig:** Die `.env` Datei ist in `.gitignore` und wird **nicht** committet!
+
+**Warum `.env`?**
+- ✅ Sicher: Keys nicht im Code
+- ✅ Flexibel: Jeder Entwickler eigene Keys
+- ✅ Platform-Control: `DEPLOYMENT_PLATFORM` steuert API-Routing
+- ✅ Einfach: Änderung ohne Code-Edit
+
+---
+
+### Schritt 4: API-Key konfigurieren (Alternative)
+
+#### Option A: Direkt in environment.ts (Nicht empfohlen)
 
 **Datei öffnen:** `src/environments/environment.ts`
 
@@ -453,14 +547,36 @@ Die Canvas-App funktioniert auf **beiden** Plattformen automatisch dank **Platfo
 
 ### Deployment auf Netlify
 
-#### 1. Environment Variable setzen
+#### 1. Environment Variables setzen
 
 **Netlify Dashboard → Ihr Site → Site Settings → Environment Variables**
 
+**Erforderliche Variables:**
+
 ```
+# ⚠️ WICHTIG: Platform-Steuerung
+Key:   DEPLOYMENT_PLATFORM
+Value: netlify
+Scope: Production, Deploy Previews, Branch Deploys
+
+# API Keys
 Key:   B_API_KEY (oder OPENAI_API_KEY)
 Value: your-api-key
 Scope: Production
+Mark as secret: ✅
+
+# Optional: LLM Provider
+Key:   LLM_PROVIDER
+Value: b-api-openai
+Scope: Production
+```
+
+**Oder via Netlify CLI:**
+
+```bash
+netlify env:set DEPLOYMENT_PLATFORM "netlify"
+netlify env:set B_API_KEY "your-uuid-key" --secret
+netlify env:set LLM_PROVIDER "b-api-openai"
 ```
 
 #### 2. Deployen
@@ -496,34 +612,54 @@ Nach dem Deployment:
 
 ### Deployment auf Vercel
 
-#### 1. Vercel CLI installieren
+#### 1. Environment Variables setzen
+
+**⚠️ WICHTIG: Vor dem ersten Deployment!**
+
+**Vercel Dashboard → Settings → Environment Variables**
+
+**Erforderliche Variables:**
+
+```
+# ⚠️ WICHTIG: Platform-Steuerung
+Name:  DEPLOYMENT_PLATFORM
+Value: vercel
+Apply to: Production, Preview, Development
+
+# API Keys
+Name:  B_API_KEY (oder OPENAI_API_KEY)
+Value: your-api-key
+Apply to: Production, Preview
+
+# Optional: LLM Provider
+Name:  LLM_PROVIDER
+Value: b-api-openai
+Apply to: Production, Preview
+```
+
+#### 2. Vercel CLI installieren (optional)
 
 ```bash
 npm i -g vercel
 vercel login
 ```
 
-#### 2. Build & Deploy
+#### 3. Build & Deploy
 
+**Option A: Git Push (empfohlen)**
 ```bash
-# Build erstellen
-npm run build
+git add .
+git commit -m "Deploy: Production ready"
+git push origin main
+```
 
-# Deployen
+Vercel baut automatisch.
+
+**Option B: Vercel CLI**
+```bash
+npm run build
 vercel --prod
 ```
-
-#### 3. Environment Variables setzen
-
-**Vercel Dashboard → Settings → Environment Variables**
-
-```
-Key:   B_API_KEY (oder OPENAI_API_KEY)
-Value: your-api-key
-Scope: Production
-```
-
-Dann **Redeploy** auslösen.
 
 #### 4. Testen
 

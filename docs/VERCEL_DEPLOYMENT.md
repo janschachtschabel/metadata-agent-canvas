@@ -46,15 +46,20 @@ npm run build
 vercel --prod
 ```
 
-### Option 2: Vercel Dashboard
+### Option 2: Vercel Dashboard (EMPFOHLEN)
 
 1. Zu https://vercel.com/ gehen
 2. **"Import Project"** klicken
 3. GitHub Repository verknüpfen
 4. **Framework Preset:** "Other" (Angular)
-5. **Build Command:** `npm run build`
+5. **Build Command:** `npm run build:vercel` ⚠️ WICHTIG: Nicht `build:prod`!
 6. **Output Directory:** `dist`
 7. **Install Command:** `npm install`
+
+**Warum `build:vercel`?**
+- ✅ Setzt `deploymentPlatform: 'vercel'` explizit
+- ✅ Keine Runtime-Detection nötig
+- ✅ Garantiert korrekte `/api/*` Endpunkte
 
 ---
 
