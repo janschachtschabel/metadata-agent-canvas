@@ -1,7 +1,8 @@
 /**
  * Vercel Serverless Function: Geocoding API Proxy
  * Compatible with Netlify Function API
- * Proxies geocoding requests to Nominatim API
+ * Proxies geocoding requests to Photon API (Komoot)
+ * Returns GeoJSON-compatible response format
  * No API key required, but respects usage limits
  */
 
@@ -23,26 +24,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { address } = req.query;
+    // Accept both 'q' (Photon-style) and 'address' (legacy)
+    const { q, address, lang = 'de', limit = '1' } = req.query;
+    const query = q || address;
 
-    if (!address) {
+    if (!query) {
       return res.status(400).json({ 
-        error: 'Missing address parameter'
+        error: 'Missing query parameter (q or address)'
       });
     }
 
-    console.log(`[Vercel] Geocoding request for: ${address}`);
+    console.log(`[Vercel] Geocoding request for: ${query}`);
 
-    // Call Nominatim API
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search`;
+    // Call Photon API (Komoot)
+    const photonUrl = `https://photon.komoot.io/api/`;
     const params = new URLSearchParams({
-      q: address,
-      format: 'json',
-      limit: '1',
-      addressdetails: '1'
+      q: query,
+      lang: lang,
+      limit: limit
     });
 
-    const response = await fetch(`${nominatimUrl}?${params}`, {
+    const response = await fetch(`${photonUrl}?${params}`, {
       headers: {
         'User-Agent': 'WLO-Metadata-Canvas/1.0',
         'Accept': 'application/json'
@@ -51,7 +53,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Vercel] Nominatim API error:', response.status, errorText);
+      console.error('[Vercel] Photon API error:', response.status, errorText);
       return res.status(response.status).json({ 
         error: 'Geocoding API error',
         status: response.status,
@@ -61,19 +63,15 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
-    // Transform to expected format
-    if (data && data.length > 0) {
-      const result = data[0];
-      return res.status(200).json({
-        lat: result.lat,
-        lon: result.lon,
-        display_name: result.display_name,
-        address: result.address
-      });
+    // Return Photon GeoJSON format (already correct)
+    // Frontend expects: { features: [...] }
+    if (data && data.features && data.features.length > 0) {
+      console.log(`[Vercel] Found ${data.features.length} result(s)`);
+      return res.status(200).json(data);
     } else {
-      return res.status(404).json({
-        error: 'No results found',
-        message: 'Could not geocode the provided address'
+      return res.status(200).json({
+        type: 'FeatureCollection',
+        features: []
       });
     }
 

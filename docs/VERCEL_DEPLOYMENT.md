@@ -17,10 +17,12 @@ Die Canvas-Webkomponente ist jetzt **Universal** und funktioniert auf **Netlify 
 webkomponente-canvas/
 ├── api/                          # Vercel API Routes
 │   ├── openai-proxy.js          # LLM Proxy (OpenAI, B-API)
-│   └── geocode-proxy.js         # Geocoding Proxy
+│   ├── geocode-proxy.js         # Geocoding Proxy (Photon)
+│   └── repository-proxy.js      # edu-sharing Repository API
 ├── netlify/functions/            # Netlify Functions
 │   ├── openai-proxy.js          # Identische Logik wie Vercel
-│   └── geocode-proxy.js         # Identische Logik wie Vercel
+│   ├── photon.js                # Geocoding (Photon API)
+│   └── repository-proxy.js      # Identische Logik wie Vercel
 ├── src/app/services/
 │   └── platform-detection.service.ts  # Auto-Detection Service
 ├── vercel.json                   # Vercel Konfiguration
@@ -51,7 +53,7 @@ vercel --prod
 3. GitHub Repository verknüpfen
 4. **Framework Preset:** "Other" (Angular)
 5. **Build Command:** `npm run build`
-6. **Output Directory:** `dist/webkomponente-canvas/browser`
+6. **Output Directory:** `dist`
 7. **Install Command:** `npm install`
 
 ---
@@ -160,7 +162,7 @@ node --version
 |---------|---------|--------|
 | **Functions** | `/.netlify/functions/*` | `/api/*` |
 | **Build Command** | `npm run build` | `npm run build` |
-| **Output Dir** | `dist/webkomponente-canvas/browser` | `dist/webkomponente-canvas/browser` |
+| **Output Dir** | `dist` | `dist` |
 | **Auto-Deploy** | ✅ GitHub Integration | ✅ GitHub Integration |
 | **Environment Vars** | Dashboard → Site Settings | Dashboard → Settings |
 | **Free Tier** | 300 Build Minutes | Unlimited |

@@ -102,13 +102,13 @@ export class PlatformDetectionService {
   getGeocodingProxyUrl(): string {
     switch (this.platform) {
       case 'netlify':
-        return '/.netlify/functions/geocode-proxy';
+        return '/.netlify/functions/photon';
       case 'vercel':
         return '/api/geocode-proxy';
       case 'local':
         return 'http://localhost:3001/geocoding';
       default:
-        return '/.netlify/functions/geocode-proxy';
+        return '/.netlify/functions/photon';
     }
   }
   
