@@ -72,44 +72,53 @@ export default async function handler(req, res) {
 
 /**
  * Check for duplicates
+ * Returns {exists: false} on error (fail gracefully)
  */
 async function checkDuplicate(url, authHeader) {
-  const searchUrl = `${GUEST_CONFIG.baseUrl}/rest/search/v1/queries/-home-/mds_oeh/ngsearch`;
-  
-  const searchBody = {
-    criteria: [{
-      property: 'ccm:wwwurl',
-      values: [url]
-    }],
-    facettes: []
-  };
-  
-  const response = await fetch(searchUrl, {
-    method: 'POST',
-    headers: {
-      'Authorization': authHeader,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(searchBody)
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Duplicate check failed: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  
-  if (data.nodes && data.nodes.length > 0) {
-    const node = data.nodes[0];
-    return {
-      exists: true,
-      nodeId: node.ref.id,
-      title: node.title || node.properties?.['cclom:title']?.[0] || 'Unbekannter Titel'
+  try {
+    const searchUrl = `${GUEST_CONFIG.baseUrl}/rest/search/v1/queries/-home-/mds_oeh/ngsearch`;
+    
+    const searchBody = {
+      criteria: [{
+        property: 'ccm:wwwurl',
+        values: [url]
+      }],
+      facettes: []
     };
+    
+    const response = await fetch(searchUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(searchBody)
+    });
+    
+    if (!response.ok) {
+      console.warn(`[Vercel] Duplicate check failed: ${response.status} - Continuing without check`);
+      return { exists: false, warning: 'Duplicate check failed, continuing anyway' };
+    }
+    
+    const data = await response.json();
+    
+    if (data.nodes && data.nodes.length > 0) {
+      const node = data.nodes[0];
+      return {
+        exists: true,
+        nodeId: node.ref.id,
+        title: node.title || node.properties?.['cclom:title']?.[0] || 'Unbekannter Titel'
+      };
+    }
+    
+    return { exists: false };
+    
+  } catch (error) {
+    // Fail gracefully - don't block submission if duplicate check fails
+    console.error('[Vercel] Duplicate check error:', error.message);
+    return { exists: false, warning: 'Duplicate check unavailable, continuing anyway' };
   }
-  
-  return { exists: false };
 }
 
 /**

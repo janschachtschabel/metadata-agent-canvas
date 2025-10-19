@@ -102,6 +102,7 @@ export class FieldNormalizerService {
 
     // Use OpenAI-compatible format (works with all proxies)
     return this.http.post<any>(this.apiUrl, {
+      provider: provider,  // Tell proxy which LLM provider to use
       model: model,  // Required by API
       messages: [
         { role: 'system', content: 'You are a data normalization assistant. Return ONLY the normalized value without any explanation, parentheses, or additional text.' },
