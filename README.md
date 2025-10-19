@@ -438,6 +438,19 @@ styles.*.css         | styles     | 89 kB    | 7.5 kB
 
 ---
 
+### 🌐 Universal Deployment - Netlify & Vercel
+
+Die Canvas-App funktioniert auf **beiden** Plattformen automatisch dank **Platform-Detection**!
+
+#### ✨ Auto-Detection Features
+
+- ✅ **Netlify:** `/.netlify/functions/openai-proxy`
+- ✅ **Vercel:** `/api/openai-proxy`
+- ✅ **Lokal:** `http://localhost:3001/llm`
+- ✅ **Kein Code-Wechsel** nötig beim Platform-Wechsel
+
+---
+
 ### Deployment auf Netlify
 
 #### 1. Environment Variable setzen
@@ -445,8 +458,8 @@ styles.*.css         | styles     | 89 kB    | 7.5 kB
 **Netlify Dashboard → Ihr Site → Site Settings → Environment Variables**
 
 ```
-Key:   OPENAI_API_KEY
-Value: sk-proj-...
+Key:   B_API_KEY (oder OPENAI_API_KEY)
+Value: your-api-key
 Scope: Production
 ```
 
@@ -474,9 +487,68 @@ Nach dem Deployment:
 - Öffnen Sie Ihre Netlify-URL
 - Browser-Konsole sollte zeigen:
   ```
-  🚀 Production mode: Using Netlify Function proxy
+  ◆ Platform: Netlify
+  🚀 Production: B-API-OPENAI via Netlify → /.netlify/functions/openai-proxy
   ```
 - API-Key ist **nicht** im Code sichtbar ✅
+
+---
+
+### Deployment auf Vercel
+
+#### 1. Vercel CLI installieren
+
+```bash
+npm i -g vercel
+vercel login
+```
+
+#### 2. Build & Deploy
+
+```bash
+# Build erstellen
+npm run build
+
+# Deployen
+vercel --prod
+```
+
+#### 3. Environment Variables setzen
+
+**Vercel Dashboard → Settings → Environment Variables**
+
+```
+Key:   B_API_KEY (oder OPENAI_API_KEY)
+Value: your-api-key
+Scope: Production
+```
+
+Dann **Redeploy** auslösen.
+
+#### 4. Testen
+
+Nach dem Deployment:
+- Öffnen Sie Ihre Vercel-URL
+- Browser-Konsole sollte zeigen:
+  ```
+  ▲ Platform: Vercel
+  🚀 Production: B-API-OPENAI via Vercel → /api/openai-proxy
+  ```
+- Alles funktioniert automatisch! ✅
+
+---
+
+### Platform-Kompatibilität
+
+| Feature | Netlify | Vercel | Lokal |
+|---------|---------|--------|-------|
+| **LLM Proxy** | ✅ | ✅ | ✅ |
+| **Geocoding** | ✅ | ✅ | ✅ |
+| **Browser-Plugin** | ✅ | ✅ | ✅ |
+| **Auto-Detection** | ✅ | ✅ | ✅ |
+| **Zero Config** | ✅ | ✅ | ✅ |
+
+**Tipp:** Dual-Deployment möglich - deploye auf beide Plattformen für Redundanz!
 
 ---
 
