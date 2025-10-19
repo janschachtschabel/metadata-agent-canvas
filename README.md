@@ -63,21 +63,20 @@ B_API_KEY=your-uuid-key-here
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-#### 🎯 DEPLOYMENT_PLATFORM - Wichtig!
+#### 🎯 DEPLOYMENT_PLATFORM - Nur für lokale Entwicklung!
 
-Diese Variable steuert welche API-Endpunkte verwendet werden:
+Diese Variable ist nur für **lokale Entwicklung** relevant:
 
 | Wert | Endpunkte | Verwendung |
 |------|-----------|------------|
-| `local` | `http://localhost:3001/*` | Lokale Entwicklung |
-| `vercel` | `/api/*` | Vercel Deployment |
-| `netlify` | `/.netlify/functions/*` | Netlify Deployment |
-| `auto` | Hostname-basiert | Automatische Erkennung |
+| `local` | `http://localhost:3001/*` | Lokale Entwicklung (Standard) |
+| `vercel` | `/api/*` | Lokales Testen der Vercel-Config |
+| `netlify` | `/.netlify/functions/*` | Lokales Testen der Netlify-Config |
 
-**Priorität (höchste zuerst):**
-1. 🥇 Environment Variable (Vercel/Netlify Dashboard)
-2. 🥈 `.env` File (lokal)
-3. 🥉 Hardcoded Fallback
+**⚠️ Für Production/Deployment:**
+- ✅ **Auto-Detection** (Runtime) - Erkennt Platform automatisch
+- ✅ Funktioniert für **Vercel UND Netlify** ohne Config
+- ✅ Kein Setup nötig - Just deploy!
 
 ---
 
@@ -554,10 +553,9 @@ Die Canvas-App funktioniert auf **beiden** Plattformen automatisch dank **Platfo
 **Erforderliche Variables:**
 
 ```
-# ⚠️ WICHTIG: Platform-Steuerung
-Key:   DEPLOYMENT_PLATFORM
-Value: netlify
-Scope: Production, Deploy Previews, Branch Deploys
+# ⚠️ DEPLOYMENT_PLATFORM wird NICHT benötigt!
+# Die App nutzt Auto-Detection zur Runtime (hostname-basiert)
+# Funktioniert automatisch für Netlify (.netlify.app) und Vercel (.vercel.app)
 
 # API Keys
 Key:   B_API_KEY (oder OPENAI_API_KEY)
@@ -574,7 +572,6 @@ Scope: Production
 **Oder via Netlify CLI:**
 
 ```bash
-netlify env:set DEPLOYMENT_PLATFORM "netlify"
 netlify env:set B_API_KEY "your-uuid-key" --secret
 netlify env:set LLM_PROVIDER "b-api-openai"
 ```
@@ -614,17 +611,15 @@ Nach dem Deployment:
 
 #### 1. Environment Variables setzen
 
-**⚠️ WICHTIG: Vor dem ersten Deployment!**
-
 **Vercel Dashboard → Settings → Environment Variables**
 
 **Erforderliche Variables:**
 
 ```
-# ⚠️ WICHTIG: Platform-Steuerung
-Name:  DEPLOYMENT_PLATFORM
-Value: vercel
-Apply to: Production, Preview, Development
+# ⚠️ DEPLOYMENT_PLATFORM wird NICHT benötigt!
+# Die App nutzt Auto-Detection zur Runtime (hostname-basiert)
+# Funktioniert automatisch für Vercel (.vercel.app) und Netlify (.netlify.app)
+# Siehe DUAL_DEPLOYMENT_GUIDE.md für Details
 
 # API Keys
 Name:  B_API_KEY (oder OPENAI_API_KEY)

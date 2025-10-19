@@ -55,23 +55,32 @@ export class PlatformDetectionService {
       return;
     }
     
-    // Vercel detection
-    const isVercelHost = hostname.includes('vercel.app') || hostname.includes('vercel.com');
+    // Vercel detection (check first, has priority)
+    const isVercelHost = hostname.includes('vercel.app') || 
+                         hostname.includes('vercel.com') ||
+                         hostname.includes('.vercel.') ||
+                         hostname.endsWith('.vercel.app');
     const hasVercelInUrl = fullUrl.includes('vercel');
     
     if (isVercelHost || hasVercelInUrl || this.isVercelCustomDomain()) {
       this.platform = 'vercel';
       this.platformConfirmed = true;
       console.log('✅ [PLATFORM DETECTION] Detected: VERCEL (hostname)');
+      console.log(`   Hostname: ${hostname}`);
       console.log('✅ [PLATFORM DETECTION] Will use: /api/* endpoints');
       return;
     }
     
-    // Netlify detection
-    if (hostname.includes('netlify.app') || this.isNetlifyCustomDomain()) {
+    // Netlify detection (after Vercel check)
+    const isNetlifyHost = hostname.includes('netlify.app') || 
+                          hostname.includes('.netlify.') ||
+                          hostname.endsWith('.netlify.app');
+    
+    if (isNetlifyHost || this.isNetlifyCustomDomain()) {
       this.platform = 'netlify';
       this.platformConfirmed = true;
       console.log('✅ [PLATFORM DETECTION] Detected: Netlify (hostname)');
+      console.log(`   Hostname: ${hostname}`);
       console.log('✅ [PLATFORM DETECTION] Will use: /.netlify/functions/* endpoints');
       return;
     }

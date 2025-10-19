@@ -2,10 +2,9 @@ export const environment = {
   production: true,
   
   // Deployment Platform
-  // ⚠️ This value will be REPLACED at build time by inject-platform-env.js
-  // Priority: Environment Variable > .env file > this default
+  // 'auto' = Runtime hostname detection (recommended for dual-deployment)
+  // Works for both Vercel and Netlify from same codebase
   // Options: 'vercel', 'netlify', 'auto'
-  // Default: 'auto' (runtime hostname detection)
   deploymentPlatform: 'auto',
   
   // LLM Provider Selection ('openai', 'b-api-openai', or 'b-api-academiccloud')
