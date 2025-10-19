@@ -13,6 +13,7 @@
     "start:ssl": "node validate-env.js && ng serve --ssl",
     "build": "node validate-env.js && ng build --configuration production",
     "build:prod": "node validate-env.js && ng build --configuration production",
+    "build:vercel": "ng build --configuration production",
     "build:dev": "ng build",
     "build:safe": "npm run build && npm run check-bundle",
     "check-bundle": "node check-bundle-security.js",
