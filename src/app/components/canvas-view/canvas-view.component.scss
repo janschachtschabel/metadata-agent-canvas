@@ -14,13 +14,13 @@
 
 /* Header for integration modes */
 .canvas-header {
-  background: var(--md-sys-color-inverse-surface);
+  background: #3b6ec8;  /* Dunkles Blau wie "Extraktion starten" Button */
   padding: 16px 24px;
   box-shadow: var(--md-sys-elevation-level1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   
   .header-left {
     display: flex;
@@ -29,8 +29,8 @@
     color: var(--md-sys-color-inverse-on-surface);
 
     .mode-badge {
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
+      background: #ecf2ff;  /* Hellblau wie Content-Type Badge */
+      color: #335fae;
       font-weight: 600;
       padding: 6px 12px;
       border-radius: var(--md-sys-shape-corner-small);
@@ -44,13 +44,7 @@
       gap: 8px;
 
       .guest-badge {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--md-sys-color-inverse-on-surface);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: var(--md-sys-shape-corner-small);
-        font-size: 13px;
-        font-weight: 500;
+        display: none;  /* Gast-Modus wird nicht korrekt erkannt, daher ausblenden */
       }
 
       .user-badge {
@@ -96,11 +90,12 @@
       color: rgba(255, 255, 255, 0.6);
 
       &:disabled {
-        background: rgba(255, 255, 255, 0.05);  // Opaque dark background
-        border-color: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.25);
+        background: #ffffff;  /* Weißer Hintergrund für disabled Buttons */
+        border-color: rgba(255, 255, 255, 0.3);
+        color: rgba(59, 110, 200, 0.3);  /* Blaue Farbe mit Transparenz */
         cursor: not-allowed;
         box-shadow: none;
+        opacity: 0.5;  /* Zusätzliche Transparenz-Schicht */
       }
 
       &.active:not(:disabled) {
@@ -437,8 +432,8 @@
           }
 
           &.required-complete {
-            background: var(--md-sys-color-tertiary-container);
-            color: var(--md-sys-color-on-tertiary-container);
+            background: #e8eefb;  /* Hellblau wie Total-Badge */
+            color: #335fae;
           }
         }
       }
