@@ -197,7 +197,9 @@
     }
 
     function testCanvas() {
-      eval(document.getElementById('bookmarkletCode').textContent.replace('javascript:', ''));
+      const encoded = document.getElementById('bookmarkletCode').textContent;
+      const decoded = decodeURIComponent(encoded.replace('javascript:', ''));
+      eval(decoded);
     }
   </script>
 </body>
