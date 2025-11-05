@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const source = path.join(__dirname, '../src/bookmarklet-enhanced.js');
+const source = path.join(__dirname, '../src/bookmarklet-working.js');
 const target = path.join(__dirname, '../src/bookmarklet-simple.html');
 
 let code = fs.readFileSync(source, 'utf8');
