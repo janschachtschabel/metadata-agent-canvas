@@ -128,53 +128,59 @@
     return tags.length > 0 ? tags : null;
   };
   
-  // Main extraction function
-  window.MCanvas = {
-    open: () => {
-      let text = '';
-      const data = {
-        url: window.location.href,
-        title: d.title || ''
-      };
+  // Extract and send page data
+  const extractAndSend = () => {
+    // Check if iframe is ready
+    if (!iframe.contentWindow) {
+      console.warn('⚠️ Iframe not ready yet, waiting...');
+      setTimeout(extractAndSend, 100);
+      return;
+    }
+    
+    let text = '';
+    const data = {
+      url: window.location.href,
+      title: d.title || ''
+    };
+    
+    // Basic page info
+    if (d.title) text += `Titel: ${d.title}\n\n`;
+    text += `URL: ${window.location.href}\n\n`;
+    
+    // Standard Meta Tags
+    const description = getMeta('description');
+    const author = getMeta('author');
+    const keywords = getMeta('keywords');
+    const language = d.documentElement.lang || getMeta('language');
+    const copyright = getMeta('copyright');
       
-      // Basic page info
-      if (d.title) text += `Titel: ${d.title}\n\n`;
-      text += `URL: ${window.location.href}\n\n`;
+    data.meta = { description, keywords, author, language, copyright };
+    
+    if (description) text += `Beschreibung: ${description}\n\n`;
+    if (author) text += `Autor: ${author}\n\n`;
+    if (keywords) text += `Keywords: ${keywords}\n\n`;
+    if (language) text += `Sprache: ${language}\n\n`;
+    
+    // OpenGraph
+    const ogTitle = getMeta('og:title');
+    const ogDesc = getMeta('og:description');
+    const ogImage = getMeta('og:image');
+    const ogType = getMeta('og:type');
+    const ogLocale = getMeta('og:locale');
+    const ogSiteName = getMeta('og:site_name');
+    
+    data.openGraph = { title: ogTitle, description: ogDesc, image: ogImage, type: ogType, locale: ogLocale, siteName: ogSiteName };
       
-      // Standard Meta Tags
-      const description = getMeta('description');
-      const author = getMeta('author');
-      const keywords = getMeta('keywords');
-      const language = d.documentElement.lang || getMeta('language');
-      const copyright = getMeta('copyright');
-      
-      data.meta = { description, keywords, author, language, copyright };
-      
-      if (description) text += `Beschreibung: ${description}\n\n`;
-      if (author) text += `Autor: ${author}\n\n`;
-      if (keywords) text += `Keywords: ${keywords}\n\n`;
-      if (language) text += `Sprache: ${language}\n\n`;
-      
-      // OpenGraph
-      const ogTitle = getMeta('og:title');
-      const ogDesc = getMeta('og:description');
-      const ogImage = getMeta('og:image');
-      const ogType = getMeta('og:type');
-      const ogLocale = getMeta('og:locale');
-      const ogSiteName = getMeta('og:site_name');
-      
-      data.openGraph = { title: ogTitle, description: ogDesc, image: ogImage, type: ogType, locale: ogLocale, siteName: ogSiteName };
-      
-      if (ogTitle || ogDesc || ogImage || ogType) {
-        text += '--- OpenGraph ---\n';
-        if (ogTitle) text += `Title: ${ogTitle}\n`;
-        if (ogType) text += `Type: ${ogType}\n`;
-        if (ogDesc) text += `Description: ${ogDesc}\n`;
-        if (ogImage) text += `Image: ${ogImage}\n`;
-        if (ogLocale) text += `Locale: ${ogLocale}\n`;
-        if (ogSiteName) text += `Site Name: ${ogSiteName}\n`;
-        text += '\n';
-      }
+    if (ogTitle || ogDesc || ogImage || ogType) {
+      text += '--- OpenGraph ---\n';
+      if (ogTitle) text += `Title: ${ogTitle}\n`;
+      if (ogType) text += `Type: ${ogType}\n`;
+      if (ogDesc) text += `Description: ${ogDesc}\n`;
+      if (ogImage) text += `Image: ${ogImage}\n`;
+      if (ogLocale) text += `Locale: ${ogLocale}\n`;
+      if (ogSiteName) text += `Site Name: ${ogSiteName}\n`;
+      text += '\n';
+    }
       
       // Twitter Cards
       const twCard = getMeta('twitter:card');
@@ -319,6 +325,15 @@
         hasBreadcrumbs: !!breadcrumbs,
         hasTags: !!tags
       });
+  };
+  
+  // Main control object
+  window.MCanvas = {
+    open: () => {
+      // Open sidebar
+      container.style.right = '0';
+      // Extract and send data (with iframe ready check)
+      extractAndSend();
     },
     
     close: () => {
@@ -338,6 +353,13 @@
     }
   });
   
-  // Open after creation
-  setTimeout(() => container.style.right = '0', 100);
+  // Wait for iframe to load, then open and send data
+  iframe.addEventListener('load', () => {
+    console.log('✅ Iframe loaded, extracting page data...');
+    // Small delay to ensure Canvas is fully initialized
+    setTimeout(() => {
+      container.style.right = '0';
+      extractAndSend();
+    }, 500);
+  });
 })();
