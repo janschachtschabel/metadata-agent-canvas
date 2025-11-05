@@ -353,13 +353,29 @@
     }
   });
   
+  // Debug: Log bookmarklet initialization
+  console.log('🚀 Bookmarklet initialized');
+  console.log('📝 Button should be visible at bottom right');
+  console.log('📦 Container created, iframe loading...');
+  
   // Wait for iframe to load, then open and send data
   iframe.addEventListener('load', () => {
     console.log('✅ Iframe loaded, extracting page data...');
     // Small delay to ensure Canvas is fully initialized
     setTimeout(() => {
+      console.log('📂 Opening sidebar...');
       container.style.right = '0';
       extractAndSend();
     }, 500);
   });
+  
+  // Fallback: If iframe doesn't load within 3 seconds, open anyway
+  setTimeout(() => {
+    if (container.style.right !== '0px') {
+      console.warn('⚠️ Iframe load timeout, opening sidebar anyway...');
+      container.style.right = '0';
+      // Try to send data after another delay
+      setTimeout(extractAndSend, 1000);
+    }
+  }, 3000);
 })();
