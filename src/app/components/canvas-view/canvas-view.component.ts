@@ -444,10 +444,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
    * Send metadata to parent window (Extension or Bookmarklet)
    */
   private sendMetadataToParent(): void {
-    // For Browser-Extension: Use Repository-API format (URI strings, not {label, uri} objects)
+    // For Browser-Extension: Use structured format with repoField flags
     // For Bookmarklet: Use enriched format with {label, uri}
     const metadata = this.integrationMode.isBrowserExtension()
-      ? this.canvasService.getMetadataForRepository()
+      ? this.canvasService.getMetadataForPlugin()
       : JSON.parse(this.canvasService.getMetadataJson());
     
     this.integrationMode.sendMetadataToParent(metadata);

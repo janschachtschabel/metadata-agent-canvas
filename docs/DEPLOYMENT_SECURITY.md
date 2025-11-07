@@ -10,8 +10,8 @@
 ```javascript
 // ❌ Hardcodiert im Code - NICHT SICHER!
 const GUEST_CONFIG = {
-  username: 'WLO-Upload',
-  password: 'wlo#upload!20',
+  username: '<your-wlo-username>',
+  password: '<your-wlo-password>',
   baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
 };
 ```
@@ -59,8 +59,8 @@ npm start
 
 | Variable | Wert | Umgebungen |
 |----------|------|------------|
-| `WLO_GUEST_USERNAME` | `WLO-Upload` | Production, Preview, Development |
-| `WLO_GUEST_PASSWORD` | `wlo#upload!20` | Production, Preview, Development |
+| `WLO_GUEST_USERNAME` | `<your-wlo-username>` | Production, Preview, Development |
+| `WLO_GUEST_PASSWORD` | `<your-wlo-password>` | Production, Preview, Development |
 | `WLO_REPOSITORY_BASE_URL` | `https://repository.staging.openeduhub.net/edu-sharing` | Production, Preview, Development |
 | `LLM_PROVIDER` | `b-api-openai` | Production, Preview, Development |
 | `B_API_KEY` | `your-b-api-key` | Production, Preview, Development |
@@ -127,8 +127,8 @@ vercel logs
 
 | Key | Value | Options |
 |-----|-------|---------|
-| `WLO_GUEST_USERNAME` | `WLO-Upload` | - |
-| `WLO_GUEST_PASSWORD` | `wlo#upload!20` | ✅ **Sensitive variable** |
+| `WLO_GUEST_USERNAME` | `<your-wlo-username>` | - |
+| `WLO_GUEST_PASSWORD` | `<your-wlo-password>` | ✅ **Sensitive variable** |
 | `WLO_REPOSITORY_BASE_URL` | `https://repository.staging.openeduhub.net/edu-sharing` | - |
 | `LLM_PROVIDER` | `b-api-openai` | - |
 | `B_API_KEY` | `your-b-api-key` | ✅ **Sensitive variable** |
@@ -161,8 +161,8 @@ netlify login
 netlify link
 
 # Environment Variables setzen
-netlify env:set WLO_GUEST_USERNAME "WLO-Upload"
-netlify env:set WLO_GUEST_PASSWORD "wlo#upload!20" --secret
+netlify env:set WLO_GUEST_USERNAME "<your-wlo-username>"
+netlify env:set WLO_GUEST_PASSWORD "<your-wlo-password>" --secret
 netlify env:set WLO_REPOSITORY_BASE_URL "https://repository.staging.openeduhub.net/edu-sharing"
 netlify env:set LLM_PROVIDER "b-api-openai"
 netlify env:set B_API_KEY "your-key" --secret
@@ -229,8 +229,8 @@ docker-compose up -d
 ```bash
 docker run -d \
   -p 3000:3000 \
-  -e WLO_GUEST_USERNAME="WLO-Upload" \
-  -e WLO_GUEST_PASSWORD="wlo#upload!20" \
+  -e WLO_GUEST_USERNAME="<your-wlo-username>" \
+  -e WLO_GUEST_PASSWORD="<your-wlo-password>" \
   -e WLO_REPOSITORY_BASE_URL="https://repository.staging.openeduhub.net/edu-sharing" \
   -e LLM_PROVIDER="b-api-openai" \
   -e B_API_KEY="your-key" \
@@ -278,7 +278,7 @@ docker run -d \
 2. **NIEMALS im Code hardcoden**
    ```javascript
    // ❌ FALSCH
-   const password = 'wlo#upload!20';
+   const password = '<your-wlo-password>';
    
    // ✅ RICHTIG
    const password = process.env.WLO_GUEST_PASSWORD;
@@ -427,7 +427,7 @@ git push origin --force --all
 ```bash
 # Alle Dateien nach Secrets durchsuchen
 grep -r "wlo#upload" .
-grep -r "WLO-Upload" .
+grep -r "<your-wlo-username>" .
 ```
 
 ---

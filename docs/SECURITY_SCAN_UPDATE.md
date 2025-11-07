@@ -19,8 +19,8 @@ Die bestehenden Security-Scans (Netlify Secret Scanning) prüfen **NICHT** auf W
 ### ❌ Was wird NICHT gescannt:
 | Credential Type | Value | Netlify Scan | Risiko |
 |----------------|-------|--------------|--------|
-| **WLO Username** | `WLO-Upload` | ❌ NEIN | **MITTEL** - Public identifier |
-| **WLO Password** | `wlo#upload!20` | ❌ NEIN | **HOCH** - Sensitive credential! |
+| **WLO Username** | `<your-wlo-username>` | ❌ NEIN | **MITTEL** - Public identifier |
+| **WLO Password** | `<your-wlo-password>` | ❌ NEIN | **HOCH** - Sensitive credential! |
 
 ---
 
@@ -29,7 +29,7 @@ Die bestehenden Security-Scans (Netlify Secret Scanning) prüfen **NICHT** auf W
 **WLO Password ist NICHT automatisch geschützt:**
 ```javascript
 // ❌ Falls versehentlich im Code:
-const password = "wlo#upload!20";  // Netlify Secret Scan würde das NICHT finden!
+const password = "<your-wlo-password>";  // Netlify Secret Scan würde das NICHT finden!
 
 // ✅ OpenAI wird erkannt:
 const apiKey = "sk-proj-xyz123...";  // Netlify Secret Scan würde das finden
@@ -38,7 +38,7 @@ const apiKey = "sk-proj-xyz123...";  // Netlify Secret Scan würde das finden
 **Grund:**
 - Netlify scannt nur Variablen die als **"Sensitive variable"** markiert sind
 - Oder Patterns die wie bekannte API-Keys aussehen (`sk-`, UUID-Format, etc.)
-- **Ein einfaches Passwort wie `wlo#upload!20` entspricht keinem bekannten Pattern!**
+- **Ein einfaches Passwort wie `<your-wlo-password>` entspricht keinem bekannten Pattern!**
 
 ---
 
@@ -75,7 +75,7 @@ Nach dem nächsten Deploy sollte im Build-Log erscheinen:
 netlify env:unset WLO_GUEST_PASSWORD
 
 # Neu setzen mit --secret
-netlify env:set WLO_GUEST_PASSWORD "wlo#upload!20" --secret
+netlify env:set WLO_GUEST_PASSWORD "<your-wlo-password>" --secret
 ```
 
 **Verifizieren:**
@@ -107,7 +107,7 @@ if git diff --cached | grep -i "wlo#upload"; then
 fi
 
 # Suche nach WLO Username (weniger kritisch, aber trotzdem prüfen)
-if git diff --cached | grep -E "username.*WLO-Upload|WLO-Upload.*password"; then
+if git diff --cached | grep -E "username.*<your-wlo-username>|<your-wlo-username>.*password"; then
     echo "⚠️  WARNING: WLO username pattern found"
     echo "   Verify this is in .env or documentation only"
 fi
@@ -147,7 +147,7 @@ jobs:
           fi
           
           # Scan für hardcodierte WLO Username (außer in Doku/Templates)
-          if grep -r "WLO-Upload" --include="*.js" --include="*.ts" --exclude-dir=docs --exclude="*.template" .; then
+          if grep -r "<your-wlo-username>" --include="*.js" --include="*.ts" --exclude-dir=docs --exclude="*.template" .; then
             echo "❌ FAIL: Hardcoded WLO username found!"
             exit 1
           fi
@@ -234,7 +234,7 @@ npm run security:scan
 **1. Test Pre-Commit Hook:**
 ```bash
 # Erstelle Test-Datei mit Credential
-echo 'const pass = "wlo#upload!20";' > test-credential.js
+echo 'const pass = "<your-wlo-password>";' > test-credential.js
 git add test-credential.js
 git commit -m "test"
 
@@ -247,7 +247,7 @@ rm test-credential.js
 **2. Test npm Script:**
 ```bash
 # Erstelle Test-Datei
-echo 'const pass = "wlo#upload!20";' > src/test.ts
+echo 'const pass = "<your-wlo-password>";' > src/test.ts
 
 # Run Scan
 npm run security:scan

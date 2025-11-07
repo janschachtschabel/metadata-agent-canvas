@@ -58,12 +58,12 @@ const authHeader = 'Basic ' + Buffer.from(`${GUEST_CONFIG.username}:${GUEST_CONF
 ```
 Add New Variable:
   Name: WLO_GUEST_USERNAME
-  Value: WLO-Upload
+  Value: <your-wlo-username>
   Environments: Production, Preview, Development
 
 Add New Variable:
   Name: WLO_GUEST_PASSWORD
-  Value: wlo#upload!20
+  Value: <your-wlo-password>
   Environments: Production, Preview, Development
   🔒 Klicke "Encrypt"
 
@@ -195,8 +195,8 @@ curl https://metadata-agent-canvas.vercel.app/api/repository-proxy \
 ### **2. Lokaler Test (zum Vergleich)**
 ```bash
 # .env mit Credentials
-WLO_GUEST_USERNAME=WLO-Upload
-WLO_GUEST_PASSWORD=wlo#upload!20
+WLO_GUEST_USERNAME=<your-wlo-username>
+WLO_GUEST_PASSWORD=<your-wlo-password>
 
 # Lokaler Server
 npm start
@@ -234,7 +234,7 @@ Lösung:
 
 ### **Vercel Dashboard:**
 - [ ] Settings → Environment Variables öffnen
-- [ ] `WLO_GUEST_USERNAME` vorhanden? (Value: WLO-Upload)
+- [ ] `WLO_GUEST_USERNAME` vorhanden? (Value: <your-wlo-username>)
 - [ ] `WLO_GUEST_PASSWORD` vorhanden? (🔒 Encrypted)
 - [ ] `WLO_REPOSITORY_BASE_URL` vorhanden? (Value: https://repository.staging.openeduhub.net/edu-sharing)
 - [ ] Alle 3 für "Production" Scope?
@@ -258,10 +258,10 @@ vercel link
 
 # 3. Environment Variables setzen
 vercel env add WLO_GUEST_USERNAME production
-# Enter value: WLO-Upload
+# Enter value: <your-wlo-username>
 
 vercel env add WLO_GUEST_PASSWORD production
-# Enter value: wlo#upload!20
+# Enter value: <your-wlo-password>
 
 vercel env add WLO_REPOSITORY_BASE_URL production
 # Enter value: https://repository.staging.openeduhub.net/edu-sharing
@@ -270,7 +270,7 @@ vercel env add WLO_REPOSITORY_BASE_URL production
 vercel env ls
 
 # Sollte zeigen:
-# WLO_GUEST_USERNAME       WLO-Upload                      Production
+# WLO_GUEST_USERNAME       <your-wlo-username>                      Production
 # WLO_GUEST_PASSWORD       ***                             Production (Sensitive)
 # WLO_REPOSITORY_BASE_URL  https://repository.staging...   Production
 

@@ -88,14 +88,9 @@ export default async function handler(req, res) {
  * Check for duplicates
  * Returns {exists: false} on error (fail gracefully)
  */
-function withLogLevel(url) {
-  const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}logLevel=INFO`;
-}
-
 async function checkDuplicate(url, authHeader) {
   try {
-    const searchUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/search/v1/queries/-home-/mds_oeh/ngsearch`);
+    const searchUrl = `${GUEST_CONFIG.baseUrl}/rest/search/v1/queries/-home-/mds_oeh/ngsearch`;
     
     const searchBody = {
       criteria: [{
@@ -145,7 +140,7 @@ async function checkDuplicate(url, authHeader) {
  */
 async function createNode(metadata, authHeader) {
   const inboxId = '21144164-30c0-4c01-ae16-264452197063';
-  const createUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`);
+  const createUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`;
   
   // Filter: Only 5 essential fields for node creation
   const essentialFields = [
@@ -201,7 +196,7 @@ async function createNode(metadata, authHeader) {
  * Set metadata - With filtering, transformation, and normalization
  */
 async function setMetadata(nodeId, metadata, authHeader) {
-  const metadataUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/metadata?versionComment=METADATA_UPDATE`);
+  const metadataUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/metadata?versionComment=METADATA_UPDATE`;
   
   // Whitelist: Only send supported fields
   const supportedFields = [
@@ -362,7 +357,7 @@ async function setCollections(nodeId, collectionIds, authHeader) {
   
   for (const collectionId of extractedIds) {
     try {
-      const url = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/collection/v1/collections/-home-/${collectionId}/references/${nodeId}`);
+      const url = `${GUEST_CONFIG.baseUrl}/rest/collection/v1/collections/-home-/${collectionId}/references/${nodeId}`;
       
       const response = await fetch(url, {
         method: 'PUT',
@@ -392,7 +387,7 @@ async function setCollections(nodeId, collectionIds, authHeader) {
  * Start workflow
  */
 async function startWorkflow(nodeId, authHeader) {
-  const workflowUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/workflow`);
+  const workflowUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/workflow`;
   
   const response = await fetch(workflowUrl, {
     method: 'PUT',

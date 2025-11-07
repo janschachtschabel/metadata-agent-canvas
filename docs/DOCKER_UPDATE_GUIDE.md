@@ -39,9 +39,9 @@ LLM_PROVIDER=b-api-openai
 B_API_KEY=your-b-api-key-here
 
 # WLO Repository Guest Credentials
-WLO_GUEST_USERNAME=WLO-Upload
+WLO_GUEST_USERNAME=<your-wlo-username>
 # IMPORTANT: Use quotes because password contains # character
-WLO_GUEST_PASSWORD="wlo#upload!20"
+WLO_GUEST_PASSWORD="<your-wlo-password>"
 WLO_REPOSITORY_BASE_URL=https://repository.staging.openeduhub.net/edu-sharing
 
 # Optional: Rate Limits
@@ -104,8 +104,8 @@ docker run -d \
   -e NODE_ENV=production \
   -e LLM_PROVIDER=b-api-openai \
   -e B_API_KEY="your-b-api-key" \
-  -e WLO_GUEST_USERNAME="WLO-Upload" \
-  -e WLO_GUEST_PASSWORD="wlo#upload!20" \
+  -e WLO_GUEST_USERNAME="<your-wlo-username>" \
+  -e WLO_GUEST_PASSWORD="<your-wlo-password>" \
   -e WLO_REPOSITORY_BASE_URL="https://repository.staging.openeduhub.net/edu-sharing" \
   -e RATE_LIMIT_LLM_MAX=100 \
   -e RATE_LIMIT_API_MAX=1000 \
@@ -128,8 +128,8 @@ docker ps
 **Docker Swarm:**
 ```bash
 # Secrets erstellen
-echo "WLO-Upload" | docker secret create wlo_username -
-echo "wlo#upload!20" | docker secret create wlo_password -
+echo "<your-wlo-username>" | docker secret create wlo_username -
+echo "<your-wlo-password>" | docker secret create wlo_password -
 
 # In docker-compose.yml für Swarm:
 secrets:
@@ -150,8 +150,8 @@ metadata:
   name: wlo-credentials
 type: Opaque
 stringData:
-  username: WLO-Upload
-  password: wlo#upload!20
+  username: <your-wlo-username>
+  password: <your-wlo-password>
 ---
 # deployment.yaml
 env:
@@ -202,10 +202,10 @@ docker-compose exec metadata-agent-canvas sh
 
 # Prüfe Env-Vars
 echo $WLO_GUEST_USERNAME
-# Output: WLO-Upload
+# Output: <your-wlo-username>
 
 echo $WLO_GUEST_PASSWORD
-# Output: wlo#upload!20
+# Output: <your-wlo-password>
 
 echo $WLO_REPOSITORY_BASE_URL
 # Output: https://repository.staging.openeduhub.net/edu-sharing
@@ -268,7 +268,7 @@ wget -q --spider https://repository.staging.openeduhub.net
 echo $?  # Sollte 0 sein
 
 # 4. Auth testen
-curl -u "WLO-Upload:wlo#upload!20" \
+curl -u "<your-wlo-username>:<your-wlo-password>" \
   https://repository.staging.openeduhub.net/edu-sharing/rest/authentication/v1/validateSession
 ```
 
