@@ -113,35 +113,25 @@
         {{ getContentTypeLabel() }}
       </span>
       <button 
-        class="btn-change-content-type"
-        (click)="changeContentType()"
+        mat-stroked-button
+        [matMenuTriggerFor]="contentTypeMenu"
         [disabled]="state.isExtracting"
-        [title]="'CONTENT_TYPE.CHANGE' | translate"
-      >
+        class="btn-change-content-type">
         {{ 'CONTENT_TYPE.CHANGE' | translate }}
+        <mat-icon>expand_more</mat-icon>
       </button>
-    </div>
-
-    <!-- Content Type Dropdown -->
-    <div *ngIf="showContentTypeDropdown" class="content-type-dropdown">
-      <div class="dropdown-overlay" (click)="closeContentTypeDropdown()"></div>
-      <div class="dropdown-menu">
-        <div class="dropdown-header">
-          <span>{{ 'CONTENT_TYPE.SELECT' | translate }}</span>
-          <button class="btn-close-dropdown" (click)="closeContentTypeDropdown()">&times;</button>
-        </div>
-        <div class="dropdown-options">
-          <button 
-            *ngFor="let option of contentTypeOptions"
-            class="dropdown-option"
-            [class.active]="getContentTypeLabel() === option.label"
-            (click)="selectContentType(option)"
-          >
-            <span class="option-label">{{ option.label }}</span>
-            <mat-icon *ngIf="getContentTypeLabel() === option.label" class="option-checkmark">check</mat-icon>
-          </button>
-        </div>
-      </div>
+      
+      <!-- Material Menu -->
+      <mat-menu #contentTypeMenu="matMenu" class="content-type-menu">
+        <button 
+          mat-menu-item 
+          *ngFor="let option of contentTypeOptions"
+          (click)="selectContentType(option)"
+          [class.active]="getContentTypeLabel() === option.label">
+          <span>{{ option.label }}</span>
+          <mat-icon *ngIf="getContentTypeLabel() === option.label" class="checkmark">check</mat-icon>
+        </button>
+      </mat-menu>
     </div>
 
     <!-- Right: Progress Info -->
