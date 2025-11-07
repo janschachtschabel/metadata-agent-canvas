@@ -25,6 +25,11 @@ const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 const RATE_LIMIT_LLM_MAX = parseInt(process.env.RATE_LIMIT_LLM_MAX || '150', 10);
 const RATE_LIMIT_API_MAX = parseInt(process.env.RATE_LIMIT_API_MAX || '1500', 10);
 
+// WLO Guest Configuration (for uploads in local, bookmarklet and container mode)
+const WLO_GUEST_USERNAME = process.env.WLO_GUEST_USERNAME;
+const WLO_GUEST_PASSWORD = process.env.WLO_GUEST_PASSWORD;
+const WLO_REPOSITORY_BASE_URL = process.env.WLO_REPOSITORY_BASE_URL || 'https://repository.staging.openeduhub.net/edu-sharing';
+
 // Validate required environment variables
 if (LLM_PROVIDER === 'openai' && !OPENAI_API_KEY) {
   console.error('❌ OPENAI_API_KEY is required when LLM_PROVIDER is "openai"');
@@ -33,6 +38,11 @@ if (LLM_PROVIDER === 'openai' && !OPENAI_API_KEY) {
 
 if ((LLM_PROVIDER === 'b-api-openai' || LLM_PROVIDER === 'b-api-academiccloud') && !B_API_KEY) {
   console.error('❌ B_API_KEY is required when LLM_PROVIDER is "b-api-openai" or "b-api-academiccloud"');
+  process.exit(1);
+}
+
+if (!WLO_GUEST_USERNAME || !WLO_GUEST_PASSWORD) {
+  console.error('❌ WLO_GUEST_USERNAME and WLO_GUEST_PASSWORD are required for repository uploads');
   process.exit(1);
 }
 
@@ -183,11 +193,11 @@ const handleRepositoryRequest = async (req, res) => {
     
     console.log(`📦 Repository action: ${action}`);
 
-    // WLO Guest credentials
+    // WLO Guest credentials from environment variables
     const GUEST_CONFIG = {
-      username: 'WLO-Upload',
-      password: 'wlo#upload!20',
-      baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
+      username: WLO_GUEST_USERNAME,
+      password: WLO_GUEST_PASSWORD,
+      baseUrl: WLO_REPOSITORY_BASE_URL
     };
 
     const authHeader = 'Basic ' + Buffer.from(`${GUEST_CONFIG.username}:${GUEST_CONFIG.password}`).toString('base64');

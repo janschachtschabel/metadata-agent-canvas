@@ -3,11 +3,11 @@
  * Proxies requests to edu-sharing Repository API to avoid CORS issues
  */
 
-// WLO Guest credentials
+// WLO Guest credentials from environment variables
 const GUEST_CONFIG = {
-  username: 'WLO-Upload',
-  password: 'wlo#upload!20',
-  baseUrl: 'https://repository.staging.openeduhub.net/edu-sharing'
+  username: process.env.WLO_GUEST_USERNAME,
+  password: process.env.WLO_GUEST_PASSWORD,
+  baseUrl: process.env.WLO_REPOSITORY_BASE_URL || 'https://repository.staging.openeduhub.net/edu-sharing'
 };
 
 exports.handler = async (event, context) => {
