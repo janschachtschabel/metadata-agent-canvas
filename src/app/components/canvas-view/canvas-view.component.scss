@@ -90,6 +90,18 @@
       line-height: 1;
       color: var(--md-sys-color-on-surface-variant);  /* Dunkle Icons */
       position: relative;
+      
+      // Override Material ripple für rechteckige Form
+      ::ng-deep .mat-mdc-button-persistent-ripple,
+      ::ng-deep .mat-ripple-element {
+        border-radius: 10px !important;
+      }
+      
+      // Hover-Effekt für alle Buttons
+      &:hover:not(:disabled) {
+        background: #f5f7fb;
+        border-color: #003B7C; /* Corporate Blue */
+      }
 
       &:disabled {
         cursor: not-allowed;
@@ -111,11 +123,6 @@
 
       &.active:not(:disabled) {
         color: var(--md-sys-color-on-surface);
-        
-        &:hover {
-          background: #f5f7fb;
-          border-color: #003B7C; /* Corporate Blue */
-        }
       }
 
       &:active:not(:disabled) {
@@ -137,6 +144,12 @@
     cursor: pointer;
     border-radius: 10px;
     transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    // Override Material ripple für rechteckige Form
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-ripple-element {
+      border-radius: 10px !important;
+    }
 
     &:hover {
       background: #f5f7fb;
@@ -171,6 +184,18 @@
     line-height: 1;
     color: var(--md-sys-color-on-surface-variant);
     position: relative;
+    
+    // Override Material ripple für rechteckige Form
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-ripple-element {
+      border-radius: 10px !important;
+    }
+    
+    // Hover-Effekt für alle Buttons
+    &:hover:not(:disabled) {
+      background: #f5f7fb;
+      border-color: #003B7C; /* Corporate Blue */
+    }
 
     &:disabled {
       cursor: not-allowed;
@@ -192,11 +217,6 @@
 
     &.active:not(:disabled) {
       color: var(--md-sys-color-on-surface);
-      
-      &:hover {
-        background: #f5f7fb;
-        border-color: #3b6ec8;
-      }
     }
 
     &:active:not(:disabled) {
@@ -409,48 +429,14 @@
   /* Left: Content Type Section */
   .content-type-section {
     display: flex;
+    gap: 12px;
     align-items: center;
-    
-    mat-chip-set {
-      .content-type-chip {
-        --mdc-chip-elevated-container-color: #003B7C;
-        --mdc-chip-label-text-color: #ffffff;
-        --mdc-chip-with-icon-icon-color: #ffffff;
-        
-        height: 36px;
-        padding: 0 16px;
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-        transition: all 0.2s ease;
-        
-        mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-        
-        &:hover:not([disabled]) {
-          --mdc-chip-elevated-container-color: #002D5E;
-          box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-        }
-        
-        &[disabled] {
-          --mdc-chip-elevated-container-color: #9fb5e0;
-          cursor: not-allowed;
-        }
-      }
-    }
+    flex-shrink: 0;
 
     .content-type-label {
       padding: 8px 16px;
       background: #ecf2ff;
-      color: #335fae;
+      color: #003B7C; // Corporate Blue
       border-radius: 8px;
       font-size: 15px;
       font-weight: 600;
@@ -460,22 +446,18 @@
       gap: 8px;
       letter-spacing: 0.15px;
 
-      .content-type-icon {
+      mat-icon {
         font-size: 20px;
-        cursor: help;
-        transition: transform 0.2s;
-
-        &:hover {
-          transform: scale(1.2);
-        }
+        width: 20px;
+        height: 20px;
       }
     }
 
     .btn-change-content-type {
       padding: 8px 14px;
       background: #ffffff;
-      border: 1px solid #335fae;
-      color: #335fae;
+      border: 1px solid #003B7C; // Corporate Blue
+      color: #003B7C;
       border-radius: 8px;
       cursor: pointer;
       font-size: 13px;
@@ -484,7 +466,7 @@
       transition: background 0.2s ease, color 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: #335fae;
+        background: #003B7C;
         color: #ffffff;
       }
 
@@ -492,6 +474,121 @@
         color: #98a2b3;
         border-color: #d4d9e3;
         cursor: not-allowed;
+      }
+    }
+  }
+  
+  /* Custom Content Type Dropdown */
+  .content-type-dropdown {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+
+    .dropdown-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.2s;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      border: 1px solid #d4d9e3;
+      border-radius: 12px;
+      min-width: 320px;
+      max-width: 500px;
+      max-height: 70vh;
+      overflow: hidden;
+      animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+
+      .dropdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #ecf0f6;
+        background: #f9fbff;
+
+        span {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1f2a3d;
+        }
+
+        .btn-close-dropdown {
+          background: none;
+          border: none;
+          font-size: 28px;
+          font-weight: 300;
+          color: #5b667a;
+          cursor: pointer;
+          padding: 0;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          transition: background 0.2s;
+
+          &:hover {
+            background: rgba(0,0,0,0.05);
+          }
+        }
+      }
+
+      .dropdown-options {
+        max-height: calc(70vh - 60px);
+        overflow-y: auto;
+        padding: 8px;
+
+        .dropdown-option {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 12px 16px;
+          border: none;
+          background: transparent;
+          text-align: left;
+          cursor: pointer;
+          transition: background 0.2s;
+          color: #1f2a3d;
+          font-size: 14px;
+          border-radius: 8px;
+
+          &:hover {
+            background: #f5f7fb;
+          }
+
+          .option-label {
+            flex: 1;
+            font-weight: 500;
+          }
+
+          .option-checkmark {
+            color: #003B7C; // Corporate Blue
+            font-size: 20px;
+          }
+
+          &.active {
+            background: #ecf2ff;
+            color: #003B7C;
+            font-weight: 600;
+          }
+        }
       }
     }
   }
@@ -547,10 +644,15 @@
         }
       }
 
-      .progress-emoji {
-        font-size: 20px;
+      .progress-icon {
+        font-size: 24px;
         margin-left: auto;
+        color: #5b667a;
         animation: bounceIn 0.5s;
+        
+        &.progress-complete {
+          color: #00874d; // Success Green
+        }
       }
     }
 
@@ -827,5 +929,25 @@
   }
   50% {
     opacity: 0.6;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
 }

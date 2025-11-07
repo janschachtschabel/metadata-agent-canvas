@@ -1,5 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 export interface LoadedJsonData {
   metadata: any;
@@ -10,7 +14,13 @@ export interface LoadedJsonData {
 @Component({
   selector: 'app-json-loader',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './json-loader.component.html',
   styleUrls: ['./json-loader.component.scss']
 })

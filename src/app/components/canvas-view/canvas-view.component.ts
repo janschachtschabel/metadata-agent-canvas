@@ -631,7 +631,22 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get progress emoji based on percentage (Gamification)
+   * Get progress icon based on percentage (Material Design)
+   */
+  getProgressIcon(): string {
+    const percentage = this.getProgressPercentage();
+    
+    if (percentage === 100) return 'celebration';  // Alles fertig!
+    if (percentage >= 80) return 'sentiment_very_satisfied';  // Fast fertig
+    if (percentage >= 60) return 'sentiment_satisfied';  // Guter Fortschritt
+    if (percentage >= 40) return 'sentiment_neutral';  // Hälfte geschafft
+    if (percentage >= 20) return 'sentiment_dissatisfied';  // Noch viel zu tun
+    return 'pending';  // Gerade gestartet
+  }
+  
+  /**
+   * Get progress emoji based on percentage (Gamification) - DEPRECATED
+   * @deprecated Use getProgressIcon() instead
    */
   getProgressEmoji(): string {
     const percentage = this.getProgressPercentage();
