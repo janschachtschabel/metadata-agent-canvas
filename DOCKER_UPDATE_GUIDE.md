@@ -40,7 +40,8 @@ B_API_KEY=your-b-api-key-here
 
 # WLO Repository Guest Credentials
 WLO_GUEST_USERNAME=WLO-Upload
-WLO_GUEST_PASSWORD=wlo#upload!20
+# IMPORTANT: Use quotes because password contains # character
+WLO_GUEST_PASSWORD="wlo#upload!20"
 WLO_REPOSITORY_BASE_URL=https://repository.staging.openeduhub.net/edu-sharing
 
 # Optional: Rate Limits

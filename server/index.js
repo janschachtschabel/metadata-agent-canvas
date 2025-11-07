@@ -426,7 +426,7 @@ async function checkDuplicate(url, authHeader, baseUrl) {
 
 async function createNode(metadata, authHeader, baseUrl) {
   const inboxId = '21144164-30c0-4c01-ae16-264452197063';
-  const createUrl = `${baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm%3Aio&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`;
+  const createUrl = `${baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`;
   
   // Essential fields for node creation (more flexible for events)
   const essentialFields = [

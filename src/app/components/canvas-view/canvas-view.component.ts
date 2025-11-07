@@ -447,7 +447,7 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     // For Browser-Extension: Use Repository-API format (URI strings, not {label, uri} objects)
     // For Bookmarklet: Use enriched format with {label, uri}
     const metadata = this.integrationMode.isBrowserExtension()
-      ? this.canvasService.getMetadataForPlugin()
+      ? this.canvasService.getMetadataForRepository()
       : JSON.parse(this.canvasService.getMetadataJson());
     
     this.integrationMode.sendMetadataToParent(metadata);
@@ -478,14 +478,13 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
     
     try {
-      const json = this.canvasService.getMetadataJson();
-      const metadata = JSON.parse(json);
+      const metadata = this.canvasService.getMetadataForRepository();
       
       // BROWSER-EXTENSION MODE: Send to plugin via postMessage
       if (this.integrationMode.isBrowserExtension()) {
         console.log('📤 Sending metadata to Browser-Plugin...');
         
-        // Use Repository-API format (URI strings, not {label, uri} objects)
+        // Use new structured format with repoField flags for Browser-Plugin
         const pluginMetadata = this.canvasService.getMetadataForPlugin();
         
         // Debug: Log essential fields that Plugin will use for createNode

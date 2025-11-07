@@ -399,7 +399,7 @@ async function createNode(metadata, authHeader) {
   
   const config = {
     hostname: REPO_HOSTNAME,
-    path: `${REPO_BASE_PATH}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm%3Aio&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`,
+    path: `${REPO_BASE_PATH}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`,
     method: 'POST',
     headers: {
       'Authorization': authHeader,
@@ -629,7 +629,8 @@ async function startWorkflow(nodeId, authHeader) {
   const workflowBody = {
     receiver: [{ authorityName: 'GROUP_ORG_WLO-Uploadmanager' }],
     comment: 'Upload via Canvas Webkomponente (Gast)',
-    status: '200_tocheck'
+    status: '200_tocheck',
+    logLevel: 'info'
   };
   
   await proxyRequest(config, workflowBody);

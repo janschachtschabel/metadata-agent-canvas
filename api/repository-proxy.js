@@ -11,7 +11,21 @@ const GUEST_CONFIG = {
   baseUrl: process.env.WLO_REPOSITORY_BASE_URL || 'https://repository.staging.openeduhub.net/edu-sharing'
 };
 
+// Validate credentials on startup
+if (!GUEST_CONFIG.username || !GUEST_CONFIG.password) {
+  console.error('❌ WLO_GUEST_USERNAME and WLO_GUEST_PASSWORD are required!');
+  console.error('   Set these in Vercel Dashboard → Settings → Environment Variables');
+}
+
 export default async function handler(req, res) {
+  // Check credentials before processing
+  if (!GUEST_CONFIG.username || !GUEST_CONFIG.password) {
+    return res.status(500).json({
+      error: 'Server configuration error',
+      message: 'WLO Guest credentials not configured',
+      hint: 'Administrator: Set WLO_GUEST_USERNAME and WLO_GUEST_PASSWORD in environment variables'
+    });
+  }
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -74,9 +88,14 @@ export default async function handler(req, res) {
  * Check for duplicates
  * Returns {exists: false} on error (fail gracefully)
  */
+function withLogLevel(url) {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}logLevel=INFO`;
+}
+
 async function checkDuplicate(url, authHeader) {
   try {
-    const searchUrl = `${GUEST_CONFIG.baseUrl}/rest/search/v1/queries/-home-/mds_oeh/ngsearch`;
+    const searchUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/search/v1/queries/-home-/mds_oeh/ngsearch`);
     
     const searchBody = {
       criteria: [{
@@ -126,7 +145,7 @@ async function checkDuplicate(url, authHeader) {
  */
 async function createNode(metadata, authHeader) {
   const inboxId = '21144164-30c0-4c01-ae16-264452197063';
-  const createUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm%3Aio&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`;
+  const createUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${inboxId}/children?type=ccm:io&renameIfExists=true&versionComment=MAIN_FILE_UPLOAD`);
   
   // Filter: Only 5 essential fields for node creation
   const essentialFields = [
@@ -182,7 +201,7 @@ async function createNode(metadata, authHeader) {
  * Set metadata - With filtering, transformation, and normalization
  */
 async function setMetadata(nodeId, metadata, authHeader) {
-  const metadataUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/metadata?versionComment=METADATA_UPDATE`;
+  const metadataUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/metadata?versionComment=METADATA_UPDATE`);
   
   // Whitelist: Only send supported fields
   const supportedFields = [
@@ -343,7 +362,7 @@ async function setCollections(nodeId, collectionIds, authHeader) {
   
   for (const collectionId of extractedIds) {
     try {
-      const url = `${GUEST_CONFIG.baseUrl}/rest/collection/v1/collections/-home-/${collectionId}/references/${nodeId}`;
+      const url = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/collection/v1/collections/-home-/${collectionId}/references/${nodeId}`);
       
       const response = await fetch(url, {
         method: 'PUT',
@@ -373,7 +392,7 @@ async function setCollections(nodeId, collectionIds, authHeader) {
  * Start workflow
  */
 async function startWorkflow(nodeId, authHeader) {
-  const workflowUrl = `${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/workflow`;
+  const workflowUrl = withLogLevel(`${GUEST_CONFIG.baseUrl}/rest/node/v1/nodes/-home-/${nodeId}/workflow`);
   
   const response = await fetch(workflowUrl, {
     method: 'PUT',
@@ -385,7 +404,8 @@ async function startWorkflow(nodeId, authHeader) {
     body: JSON.stringify({
       receiver: [{ authorityName: 'GROUP_ORG_WLO-Uploadmanager' }],
       comment: 'Upload via Canvas Webkomponente (Gast)',
-      status: '200_tocheck'
+      status: '200_tocheck',
+      logLevel: 'info'
     })
   });
   
