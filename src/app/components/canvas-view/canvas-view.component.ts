@@ -518,13 +518,10 @@ export class CanvasViewComponent implements OnInit, OnDestroy {
         
         this.integrationMode.sendMetadataToParent(pluginMetadata);
         
-        // Show success message
-        alert(this.i18n.instant('ALERTS.PLUGIN.SENT') + '\n\n' + this.i18n.instant('ALERTS.PLUGIN.MESSAGE'));
-        
-        // Close canvas after short delay
+        // Close canvas immediately after sending
         setTimeout(() => {
           this.integrationMode.requestClose();
-        }, 1500);
+        }, 500);
         
         this.isSubmitting = false;
         return;
