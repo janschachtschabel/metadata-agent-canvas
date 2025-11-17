@@ -4,6 +4,8 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 
 **✨ Multi-Mode Integration:** Läuft als Standalone-App, Bookmarklet-Overlay oder integriert im Browser-Plugin!
 
+**🚀 Production URL:** https://metadata-agent-canvas.staging.openeduhub.net/
+
 ## 🎯 Features
 
 ### 🆕 **NEU in v2.1.0 (November 2025)**
@@ -31,7 +33,7 @@ Angular-basierte Webkomponente für die KI-gestützte Metadaten-Extraktion mit p
 - 🔖 **Bookmarklet**: Als Overlay auf beliebigen Webseiten
 - 🧩 **Browser-Plugin**: Integriert in WLO Browser Extension
 - 🔄 **Auto-Detection**: Erkennt automatisch den Betriebsmodus
-- 📤 **Smart Submit**: Mode-abhängige Daten-Submission (Netlify Functions oder postMessage)
+- 📤 **Smart Submit**: Mode-abhängige Daten-Submission (Server API oder postMessage)
 
 ---
 
@@ -60,7 +62,7 @@ cp .env.example .env
 
 ```bash
 # ⚠️ WICHTIG: Deployment Platform (steuert API-Endpunkte)
-# Optionen: local, vercel, netlify, auto
+# Optionen: local, vercel, netlify, docker, auto
 DEPLOYMENT_PLATFORM=local
 
 # LLM Provider (openai, b-api-openai, b-api-academiccloud)
@@ -80,11 +82,13 @@ Diese Variable ist nur für **lokale Entwicklung** relevant:
 | `local` | `http://localhost:3001/*` | Lokale Entwicklung (Standard) |
 | `vercel` | `/api/*` | Lokales Testen der Vercel-Config |
 | `netlify` | `/.netlify/functions/*` | Lokales Testen der Netlify-Config |
+| `docker` | Relative Pfade (`/api/*`) | Docker Container (Production) |
 
 **⚠️ Für Production/Deployment:**
 - ✅ **Auto-Detection** (Runtime) - Erkennt Platform automatisch
-- ✅ Funktioniert für **Vercel UND Netlify** ohne Config
+- ✅ Funktioniert für **Vercel, Netlify UND Docker** ohne Config
 - ✅ Kein Setup nötig - Just deploy!
+- 🐳 **Production läuft auf Docker:** https://metadata-agent-canvas.staging.openeduhub.net/
 
 ---
 
@@ -224,7 +228,7 @@ npm run build:safe
 npm run build
 
 # Output in dist/ Verzeichnis
-# Bereit für Deployment auf Netlify/Vercel
+# Bereit für Deployment (Netlify, Vercel, Docker, etc.)
 ```
 
 **💡 Tipp:** `build:safe` validiert, dass keine API-Keys im Bundle landen!
@@ -539,12 +543,15 @@ styles.*.css         | styles     | 89 kB    | 7.5 kB
 
 ---
 
-### 🌐 Universal Deployment - Netlify & Vercel
+### 🌐 Universal Deployment - Multi-Platform Support
 
-Die Canvas-App funktioniert auf **beiden** Plattformen automatisch dank **Platform-Detection**!
+Die Canvas-App funktioniert auf **mehreren Plattformen** automatisch dank **Platform-Detection**!
+
+**🚀 Production läuft auf Docker:** https://metadata-agent-canvas.staging.openeduhub.net/
 
 #### ✨ Auto-Detection Features
 
+- ✅ **Docker:** `/api/*` (Production) 🐳
 - ✅ **Netlify:** `/.netlify/functions/openai-proxy`
 - ✅ **Vercel:** `/api/openai-proxy`
 - ✅ **Lokal:** `http://localhost:3001/llm`
@@ -677,17 +684,116 @@ Nach dem Deployment:
 
 ---
 
+### Deployment auf Docker (Production)
+
+**🚀 Production URL:** https://metadata-agent-canvas.staging.openeduhub.net/
+
+#### 1. Environment Variables konfigurieren
+
+Erstellen Sie eine `.env` Datei basierend auf `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+**Erforderliche Variables:**
+
+```bash
+# Server Configuration
+NODE_ENV=production
+PORT=3000
+
+# CORS Configuration (wichtig!)
+# Comma-separated list of allowed origins
+ALLOWED_ORIGINS=https://your-domain.com,https://app.your-domain.com
+
+# Rate Limits (Optional, Defaults sind für 20 parallel workers)
+RATE_LIMIT_LLM_MAX=1000      # LLM requests per minute
+RATE_LIMIT_API_MAX=10000     # API requests per 15 minutes
+
+# LLM Provider
+LLM_PROVIDER=b-api-openai
+
+# API Keys (NIEMALS committen!)
+B_API_KEY=your-uuid-key-here
+OPENAI_API_KEY=sk-proj-your-key-here
+
+# OpenAI Model (Optional)
+OPENAI_MODEL=gpt-4.1-mini
+
+# WLO Repository Credentials
+WLO_GUEST_USERNAME=WLO-Upload
+WLO_GUEST_PASSWORD=your-password-here
+WLO_REPOSITORY_BASE_URL=https://repository.staging.openeduhub.net/edu-sharing
+```
+
+#### 2. Docker Build & Run
+
+**Mit Docker Compose (empfohlen):**
+```bash
+docker-compose up -d
+```
+
+**Oder manuell:**
+```bash
+# Build
+docker build -t metadata-agent-canvas .
+
+# Run
+docker run -d \
+  --name metadata-agent-canvas \
+  -p 3000:3000 \
+  --env-file .env \
+  metadata-agent-canvas
+```
+
+#### 3. Testen
+
+Nach dem Start:
+- Öffnen Sie `http://localhost:3000` oder Ihre Production-URL
+- Browser-Konsole sollte zeigen:
+  ```
+  🐳 Platform: Docker
+  🚀 Production: B-API-OPENAI via Docker → /api/llm
+  ```
+- API-Keys sind nicht im Code sichtbar ✅
+
+#### 🛡️ Security Best Practices
+
+**Environment Variables:**
+- ✅ NIEMALS `.env` File in Git committen (ist in `.gitignore`)
+- ✅ API-Keys geheim halten
+- ✅ `ALLOWED_ORIGINS` in Production einschränken (NICHT `*` verwenden)
+- ✅ HTTPS in Production verwenden
+- ✅ Starke Passwörter für WLO-Credentials
+- ✅ Docker Secrets für sensible Daten erwägen
+
+**CORS Configuration:**
+- **Development:** `http://localhost:3000`
+- **Production:** Nur vertrauenswürdige Domains (komma-separiert)
+- **Beispiel:** `https://metadata-agent-canvas.staging.openeduhub.net,https://repository.staging.openeduhub.net`
+
+**Rate Limiting:**
+- Standard-Werte sind für 20 parallele Worker optimiert
+- Bei Bedarf erhöhen (z.B. mehr concurrent Extraktionen)
+- Schützt vor API-Überlastung
+
+---
+
 ### Platform-Kompatibilität
 
-| Feature | Netlify | Vercel | Lokal |
-|---------|---------|--------|-------|
-| **LLM Proxy** | ✅ | ✅ | ✅ |
-| **Geocoding** | ✅ | ✅ | ✅ |
-| **Browser-Plugin** | ✅ | ✅ | ✅ |
-| **Auto-Detection** | ✅ | ✅ | ✅ |
-| **Zero Config** | ✅ | ✅ | ✅ |
+| Feature | Docker 🐳 | Netlify | Vercel | Lokal |
+|---------|---------|---------|--------|-------|
+| **LLM Proxy** | ✅ | ✅ | ✅ | ✅ |
+| **Geocoding** | ✅ | ✅ | ✅ | ✅ |
+| **Repository API** | ✅ | ✅ | ✅ | ✅ |
+| **Browser-Plugin** | ✅ | ✅ | ✅ | ✅ |
+| **Auto-Detection** | ✅ | ✅ | ✅ | ✅ |
+| **Zero Config** | ✅ | ✅ | ✅ | ✅ |
 
-**Tipp:** Dual-Deployment möglich - deploye auf beide Plattformen für Redundanz!
+**🚀 Production:** Docker Container (https://metadata-agent-canvas.staging.openeduhub.net/)
+
+**Tipp:** Multi-Platform Deployment möglich - deploye auf mehrere Plattformen für Redundanz!
 
 ---
 
@@ -697,12 +803,14 @@ Die Canvas-Komponente unterstützt **drei Betriebsmodi** und erkennt automatisch
 
 ### 1. 🌐 Standalone Mode
 
-**Wann:** Direkter Zugriff auf die deployed URL (z.B. `https://your-site.netlify.app`)
+**Wann:** Direkter Zugriff auf die deployed URL
+
+**Production URL:** https://metadata-agent-canvas.staging.openeduhub.net/
 
 **Features:**
 - ✅ Vollständige Canvas-UI
 - ✅ Manuelle Text-Eingabe
-- ✅ Submit zu Netlify Functions (Repository API)
+- ✅ Submit zu Server API (Repository API)
 - ✅ JSON-Download
 - ❌ Kein Close-Button (volle Seite)
 
@@ -719,20 +827,20 @@ Die Canvas-Komponente unterstützt **drei Betriebsmodi** und erkennt automatisch
 - ✅ Close-Button (×)
 - ✅ Mode-Badge: "Bookmarklet"
 - ✅ URL automatisch übergeben via postMessage
-- ✅ Submit zu Netlify Functions
+- ✅ Submit zu Server API
 - ✅ Automatisches Schließen nach Submit
 
 **Workflow:**
 ```
 Bookmarklet-Script ausführen
   ↓
-Canvas öffnet als iframe
+Canvas öffnet als iframe (von Docker-URL)
   ↓
 postMessage: SET_PAGE_DATA (URL, Text)
   ↓
 User extrahiert Metadaten
   ↓
-Submit → Netlify Functions → Repository
+Submit → Server API → Repository
   ↓
 Canvas schließt sich
 ```
@@ -831,7 +939,7 @@ async submitAsGuest() {
     return;  // Kein Repository-Call!
   }
   
-  // STANDALONE/BOOKMARKLET: Netlify Functions
+  // STANDALONE/BOOKMARKLET: Server API
   const result = await this.guestSubmission.submitAsGuest(metadata);
   // ... Repository-Submission
 }
@@ -977,9 +1085,9 @@ Die App reichert Adressdaten **automatisch mit Geo-Koordinaten** an, bevor der J
 **🛡️ Technische Details:**
 - **Rate Limiting:** 1 Request/Sekunde (Photon API-Limit)
 - **Sequenzielle Verarbeitung:** Mehrere Adressen werden nacheinander verarbeitet
-- **Netlify-Proxy:** Production-Build nutzt Server-side Proxy
+- **Server-Proxy:** Production nutzt Server-side Proxy (Docker/Netlify/Vercel)
 - **Lokal:** Direkter API-Zugriff ohne Proxy
-- **Caching:** 10 Minuten Cache auf Netlify (gleiche Adresse = kein erneuter Request)
+- **Caching:** 10 Minuten Cache in Production (gleiche Adresse = kein erneuter Request)
 
 ### Konfiguration
 
@@ -988,7 +1096,7 @@ Die Geocoding-Funktion ist **standardmäßig aktiviert** und benötigt keine Kon
 **Services:**
 - `geocoding.service.ts` - Photon API Integration
 - `canvas.service.ts` - Anreicherungs-Logik vor Export
-- `netlify/functions/photon.js` - Server-side Proxy für Production
+- `server/` - Server-side Proxy für Production (Docker/Functions)
 
 **Logging:**
 ```
