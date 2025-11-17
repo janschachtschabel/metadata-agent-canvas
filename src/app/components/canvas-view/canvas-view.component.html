@@ -1,13 +1,5 @@
 <div class="canvas-container">
   <div class="canvas-controls">
-    <div class="mode-chip" *ngIf="integrationMode.isBrowserExtension() || integrationMode.isBookmarklet()">
-      <mat-chip-set>
-        <mat-chip class="mode-badge" highlighted>
-          {{ integrationMode.getModeDisplayName() }}
-        </mat-chip>
-      </mat-chip-set>
-    </div>
-
     <app-json-loader (jsonLoaded)="onJsonLoaded($event)"></app-json-loader>
     
     <button 
